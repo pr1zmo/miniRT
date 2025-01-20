@@ -1,0 +1,9 @@
+*.out
+*.o
+*.a
+test*
+/trash
+miniRT
+/mlx
+/.idea
+/.vscode
