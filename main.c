@@ -24,7 +24,6 @@ int	destroy(t_rt *rt)
 	free_objects(rt->object);
 	free(rt);
 	exit(0);
-	return (0);
 }
 
 void	free_objects(t_object *object)
@@ -63,7 +62,6 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 
 int	check_collision(t_object *object, int x, int y)
 {
-	// printf("object : %p\n", object);
 	if (object != NULL && object->type == SPHERE)
 	{
 		t_sphere	*sphere;
@@ -81,16 +79,26 @@ int	check_collision(t_object *object, int x, int y)
 	return (0);
 }
 
+t_color	set_color(int x, int y, t_object *object)
+{
+	//
+}
+
 void	check_hit(t_rt *rt, int x, int y)
 {
 	t_object	*object;
+	t_sphere	*sphere;
+	int			angle;
+	t_color		color;
 
 	object = rt->object;
+	sphere = (t_sphere *)object->object;
 	while (object)
 	{
 		if (check_collision(object, x, y))
 		{
-			my_mlx_pixel_put(&rt->img, x, y, 0x00FF0000);
+			color = set_color(x, y, object);
+			my_mlx_pixel_put(&rt->img, x, y, sphere->color.r << 16 | sphere->color.g << 8 | sphere->color.b);
 			return;
 		}
 		object = object->next;
@@ -127,23 +135,22 @@ void	ft_add_back(t_object **list, t_object *new)
 	new->next = NULL;
 }
 
-void init_objects(t_rt *rt, int width, int height)
+t_object	*init_sphere(t_rt *rt)
 {
 	t_sphere	*sphere;
 	t_object	*object;
 
-	(void)width;
-	(void)height;
+	(void)rt;
 	sphere = (t_sphere *)malloc(sizeof(t_sphere));
 	if (sphere == NULL)
 	{
 		ft_putstr_fd("Error: malloc() failed for sphere\n", 2);
-		return;
+		return (NULL);
 	}
 	sphere->color.r = 255;
-	sphere->color.g = 0;
-	sphere->color.b = 0;
-	sphere->diameter = 50;
+	sphere->color.g = 255;
+	sphere->color.b = 255;
+	sphere->diameter = 200;
 	sphere->position.x = 500;
 	sphere->position.y = 200;
 	sphere->position.z = 0;
@@ -152,12 +159,29 @@ void init_objects(t_rt *rt, int width, int height)
 	{
 		ft_putstr_fd("Error: malloc() failed for object\n", 2);
 		free(sphere);
-		return;
+		return (NULL);
 	}
 	object->type = SPHERE;
 	object->object = sphere;
 	object->next = NULL;
-	ft_add_back(&rt->object, object);
+	return (object);
+}
+
+void init_objects(t_rt *rt, int width, int height)
+{
+	t_object	*object;
+	int			i;
+
+	(void)width;
+	(void)height;
+	i = 0;
+	object = NULL;
+	while (i < rt->object_count) {
+		// if (rt->object->type == SPHERE)
+		object = init_sphere(rt);
+		ft_add_back(&rt->object, object);
+		i++;
+	}
 }
 
 void	show_sphere(t_object *object)
@@ -243,6 +267,24 @@ int	is_hit(t_rt *rt, int x, int y)
 	return (0);
 }
 
+void	init_light(t_rt *rt)
+{
+	t_vector	position;
+	t_color		color;
+	double		brightness;
+
+	position.x = 0;
+	position.y = 0;
+	position.z = 0;
+	color.r = 255;
+	color.g = 255;
+	color.b = 255;
+	brightness = 1;
+	rt->light.position = position;
+	rt->light.color = color;
+	rt->light.brightness = brightness;
+}
+
 void	init_scene(t_rt *rt)
 {
 	t_vector	position;
@@ -258,6 +300,7 @@ void	init_scene(t_rt *rt)
 	camera.position = position;
 	camera.direction = direction;
 	camera.fov = 60;
+	init_light(rt);
 	rt->camera = camera;
 }
 
@@ -282,6 +325,7 @@ int main(int ac, char **av)
 	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
+	rt->object_count = 1;
 	init(rt, WIDTH, HEIGHT);
 	render(rt, WIDTH, HEIGHT);
 	mlx_key_hook(rt->win, key_hook, rt);
