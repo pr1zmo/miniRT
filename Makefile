@@ -1,10 +1,15 @@
-NAME	=	miniRT
-FILES	=	main.c parsing/file.c parsing/init.c parsing/parsing.c
-OBJ		=	$(FILES:.c=.o)
-FLAGS	=	-Wall -Wextra -Werror
-ASAN	=	-g3 -pg -fsanitize=address
-MLX		=	mlx/libmlx.a -lXext -lX11 -lm
-LIBFT	=	libft/libft.a
+NAME		=	miniRT
+SRC_DIR		=	src
+PARSE_DIR	=	parsing
+SRC_FILES	=	main.c
+PARSE_FILES	=	file.c init.c parsing.c
+FILES		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES)) \
+				$(addprefix $(PARSE_DIR)/, $(PARSE_FILES))
+OBJ			=	$(FILES:.c=.o)
+FLAGS		=	-Wall -Wextra -Werror
+ASAN		=	-g3 -pg -fsanitize=address
+MLX			=	mlx/libmlx.a -lXext -lX11 -lm
+LIBFT		=	libft/libft.a
 
 all: $(NAME)
 

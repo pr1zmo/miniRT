@@ -53,31 +53,43 @@ char	*get_next_line(int fd)
 
 void	parse_ambient(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
 void	parse_camera(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
 void	parse_light(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
 void	parse_sphere(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
 void	parse_plane(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
 void	parse_cylinder(t_rt *rt, char *line)
 {
+	(void)rt;
+	(void)line;
 	//
 }
 
