@@ -19,6 +19,7 @@ void	open_file(t_rt *rt, char *path)
 	if (check_file(rt) == 1)
 	{
 		free(rt);
+		close(rt->file_fd);
 		exit(1);
 	}
 }

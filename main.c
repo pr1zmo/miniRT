@@ -22,6 +22,8 @@ int	destroy(t_rt *rt)
 	if (rt->mlx)
 		free(rt->mlx);
 	free_objects(rt->object);
+	if (rt->file_fd > 0)
+		close(rt->file_fd);
 	free(rt);
 	exit(0);
 }
@@ -150,7 +152,7 @@ t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 
 int create_trgb(int t, int r, int g, int b)
 {
-    return (t << 24 | r << 16 | g << 8 | b);
+	return (t << 24 | r << 16 | g << 8 | b);
 }
 
 void	check_hit(t_rt *rt, int x, int y)

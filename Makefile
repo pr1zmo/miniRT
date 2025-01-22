@@ -1,5 +1,5 @@
 NAME	=	miniRT
-FILES	=	main.c parsing/file.c
+FILES	=	main.c parsing/file.c parsing/init.c parsing/parsing.c
 OBJ		=	$(FILES:.c=.o)
 FLAGS	=	-Wall -Wextra -Werror
 ASAN	=	-g3 -pg -fsanitize=address
