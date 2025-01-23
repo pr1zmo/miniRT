@@ -16,10 +16,10 @@ void	open_file(t_rt *rt, char *path)
 {
 	rt->file_fd = open(path, O_RDONLY);
 	rt->file = path;
-	if (check_file(rt) == 1)
+	if (check_file(rt) == 1 || parse(rt) == 1)
 	{
-		free(rt);
 		close(rt->file_fd);
+		free(rt);
 		exit(1);
 	}
 }
@@ -48,7 +48,7 @@ int	is_rt_file(char *path)
 {
 	int	len;
 
-	len = ft_strlen(path) - 3;
+	len = (int)ft_strlen(path) - 3;
 	if (len > 3)
 		return (ft_strncmp(path + len, ".rt", 3) == 0);
 	return (0);

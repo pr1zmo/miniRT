@@ -146,7 +146,7 @@ t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 {
 	t_color	color;
 
-	color = calculate_lighting((t_vector){x, y, 0}, (t_vector){0, 0, 1}, rt->camera.direction, rt->light, ((t_sphere *)object->object)->color);
+	color = calculate_lighting((t_vector){x, y, 0}, (t_vector){0, 0, 1}, rt->camera.orientation, rt->light, ((t_sphere *)object->object)->color);
 	return (color);
 }
 
@@ -377,7 +377,7 @@ void	init_scene(t_rt *rt)
 	direction.y = 0;
 	direction.z = 1;
 	camera.position = position;
-	camera.direction = direction;
+	camera.orientation = direction;
 	camera.fov = 60;
 	init_light(rt);
 	rt->camera = camera;

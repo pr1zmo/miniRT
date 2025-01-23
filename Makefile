@@ -1,8 +1,8 @@
 NAME		=	miniRT
 SRC_DIR		=	src
 PARSE_DIR	=	parsing
-SRC_FILES	=	main.c
-PARSE_FILES	=	file.c init.c parsing.c
+SRC_FILES	=	main.c free.c
+PARSE_FILES	=	file.c init.c parsing.c atoi_double.c parsing_utils.c
 FILES		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES)) \
 				$(addprefix $(PARSE_DIR)/, $(PARSE_FILES))
 OBJ			=	$(FILES:.c=.o)

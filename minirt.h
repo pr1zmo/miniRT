@@ -65,10 +65,17 @@ typedef struct s_ray
 	t_vector	direction;
 }	t_ray;
 
+typedef struct s_ambient
+{
+	double	lighting;
+	t_color	color;
+}	t_ambient;
+
 typedef struct s_light
 {
 	t_vector	position;
 	t_color		color;
+	t_ambient	ambient;
 	double		brightness;
 }	t_light;
 
@@ -86,7 +93,7 @@ typedef struct s_img
 typedef struct s_camera
 {
 	t_vector	position;
-	t_vector	direction;
+	t_vector	orientation;
 	double		fov;
 }	t_camera;
 
@@ -140,3 +147,7 @@ int				key_hook(int keycode, t_rt *rt);
 int				is_hit(t_rt *rt, int x, int y);
 void			init_scene(t_rt *rt);
 int				main(int ac, char **av);
+int				parse(t_rt *rt);
+double			atoi_double(char *str);
+void			free_array(char *arr[]);
+int				array_length(char **arr);
