@@ -151,3 +151,4 @@ int				parse(t_rt *rt);
 double			atoi_double(char *str);
 void			free_array(char *arr[]);
 int				array_length(char **arr);
+void			parsing_error(t_rt *rt, char *msg);

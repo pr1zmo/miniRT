@@ -100,9 +100,11 @@ int	is_int(const char *c)
 	int	i;
 
 	i = 0;
+	while (c[i] == '-' || c[i] == '+')
+		i++;
 	while (c[i])
 	{
-		if (c[i] < '0' || c[i] > '9')
+		if (!ft_isdigit(c[i]) || c[i] == '.')
 			return (0);
 		i++;
 	}
@@ -114,7 +116,7 @@ int	check_range(char *line, int count, const int range[2])
 	int		i;
 	char	**line_arr;
 
-	i = 1;
+	i = 0;
 	line_arr = ft_split(line, ',');
 	if (!range)
 	{
@@ -127,7 +129,7 @@ int	check_range(char *line, int count, const int range[2])
 	}
 	else
 	{
-		i = 1;
+		i = 0;
 		while (line_arr[i] && i < count)
 		{
 			if (!is_int(line_arr[i])
@@ -189,11 +191,34 @@ int	parse_light(t_rt *rt, char *line)
 	return (0);
 }
 
-void	parse_sphere(t_rt *rt, char *line)
+void	set_sphere(char **line, t_object *object)
 {
-	(void)rt;
-	(void)line;
-	//
+	t_sphere	*sphere;
+
+	sphere = (t_sphere *)malloc(sizeof(t_sphere));
+	sphere->diameter = atoi_double(line[2]);
+	set_direction(line[1], &sphere->position);
+	set_rgb(line[3], &sphere->color);
+	object->type = SPHERE;
+	object->object = sphere;
+	object->next = NULL;
+}
+
+int	parse_sphere(t_rt *rt, char *line)
+{
+	char	**line_data;
+
+	line_data = ft_split(line, ' ');
+	if (check_range(line_data[1], 3, NULL)
+		&& check_range(line_data[2], 1, (int[]){0, INT_MAX})
+		&& check_range(line_data[3], 3, (int[]){0, 255}))
+	{
+		set_sphere(line_data, (t_object *)&rt->object);
+		free_array(line_data);
+		return (1);
+	}
+	free_array(line_data);
+	return (0);
 }
 
 void	parse_plane(t_rt *rt, char *line)
@@ -232,8 +257,8 @@ int	parse(t_rt *rt)
 			return (free(line), parsing_error(rt, "CAMERA"), 1);
 		if (line[0] == 'L' && !parse_light(rt, line))
 			return (free(line), parsing_error(rt, "LIGHT"), 1);
-		if (line[0] == 's' && line[1] == 'p')
-			parse_sphere(rt, line);
+		if (line[0] == 's' && line[1] == 'p' && !parse_sphere(rt, line))
+			return (free(line), parsing_error(rt, "SPHERE"), 1);
 		else if (line[0] == 'p' && line[1] == 'l')
 			parse_plane(rt, line);
 		else if (line[0] == 'c' && line[1] == 'y')

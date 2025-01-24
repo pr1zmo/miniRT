@@ -76,9 +76,6 @@ double	atoi_double(char *str)
 	sign = 1;
 	result = process_integer_part(str, &i, &sign);
 	if (ft_strchr(str, '.') != NULL)
-	{
-		printf("This part will not be processed %s\n", str);
 		result += process_fractional_part(str, &i);
-	}
 	return (result * sign);
 }

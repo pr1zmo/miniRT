@@ -21,7 +21,8 @@ int	destroy(t_rt *rt)
 		mlx_destroy_display(rt->mlx);
 	if (rt->mlx)
 		free(rt->mlx);
-	free_objects(rt->object);
+	if (rt->object)
+		free_objects(rt->object);
 	if (rt->file_fd > 0)
 		close(rt->file_fd);
 	free(rt);
@@ -240,17 +241,19 @@ t_object	*init_sphere(t_rt *rt)
 
 void init_objects(t_rt *rt, int width, int height)
 {
-	t_object	*object;
+//	t_object	*object;
 	int			i;
 
 	(void)width;
 	(void)height;
 	i = 0;
-	object = NULL;
+//	object = NULL;
 	while (i < rt->object_count) {
+		printf("object_count: %d\n", rt->object_count);
+		printf("%d\n", rt->object->type);
 		// if (rt->object->type == SPHERE)
-		object = init_sphere(rt);
-		ft_add_back(&rt->object, object);
+//		object = init_sphere(rt);
+//		ft_add_back(&rt->object, object);
 		i++;
 	}
 }
@@ -280,6 +283,11 @@ void	list_objects(t_rt *rt)
 	t_object	*object;
 
 	object = rt->object;
+	if (!object)
+	{
+		printf("No objects\n");
+		return;
+	}
 	while (object)
 	{
 		if (object->type == SPHERE)
@@ -296,9 +304,11 @@ void	list_objects(t_rt *rt)
 
 void	init(t_rt *rt, int width, int height)
 {
+	(void)width;
+	(void)height;
 	rt->object = NULL;
 	init_scene(rt);
-	init_objects(rt, width, height);
+//	init_objects(rt, width, height);
 }
 
 void	render(t_rt *rt, int width, int height)
@@ -398,12 +408,13 @@ int main(int ac, char **av)
 		perror("Failed to allocate memory for t_rt");
 		exit(EXIT_FAILURE);
 	}
-	open_file(rt, av[1]);
 	rt->mlx = mlx_init();
 	rt->win = mlx_new_window(rt->mlx, WIDTH, HEIGHT, "miniRT");
 	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
+	rt->object = NULL;
+	open_file(rt, av[1]);
 	rt->object_count = 1;
 	init(rt, WIDTH, HEIGHT);
 	render(rt, WIDTH, HEIGHT);
