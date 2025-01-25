@@ -12,3 +12,17 @@ void	free_array(char *arr[])
 		free(arr);
 	}
 }
+
+void	free_objects(t_object *object)
+{
+	t_object	*temp;
+
+	while (object)
+	{
+		temp = object;
+		object = object->next;
+		if (temp->type == SPHERE)
+			free(temp->object);
+		free(temp);
+	}
+}

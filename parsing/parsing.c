@@ -1,25 +1,3 @@
-/*
-Parsing rules:
-- Each line Starts with a letter that defines the type of the element.
-- Each element is separated by a space.
-- Each element has a specific number of parameters.
-Mandatory elements:
-- Ambient lighting: A 0.0 to 1.0 ratio. Example: A 0.2 255,255,255
-- Camera: The position of the camera, the normalized direction vector, and the field of view in degrees. Example: C 0,0,0 0,0,1 60
-- Light: The position of the light, the brightness ratio, and the color in RGB. Example: L 0,0,0 0.6 255,255,255
-- Sphere: The position of the sphere, the diameter, and the color in RGB. Example: sp 0,0,20 20 255,0,0
-- Plane: The position of the plane, the normalized direction vector, and the color in RGB. Example: pl 0,0,0 0,0,1 255,255,255
-- Cylinder: The position of the cylinder, the normalized direction vector, the diameter, the height, and the color in RGB. Example: cy 0,0,0 0,0,1 20 40 255,255,255
-
-File examples:
-- A 0.2 255,255,255
-- C 0,0,0 0,0,1 60
-- L 0,0,0 0.6 255,255,255
-- sp 0,0,20 20 255,0,0
-- pl 0,0,0 0,0,1 255,255,255
-- cy 0,0,0 0,0,1 20 40 255,255,255
- */
-
 #include "../minirt.h"
 
 #include <stdlib.h>
@@ -71,16 +49,16 @@ void	set_rgb(char	*line, t_color *colors)
 
 	rgb = ft_split(line, ',');
 	colors->r = ft_atoi(rgb[0]);
-	colors->r = ft_atoi(rgb[1]);
-	colors->r = ft_atoi(rgb[2]);
+	colors->g = ft_atoi(rgb[1]);
+	colors->b = ft_atoi(rgb[2]);
 	free_array(rgb);
 }
 
 void	set_camera(char **line, t_camera *camera)
 {
-	camera->fov = ft_atoi(line[2]);
-	set_direction(line[1], &camera->orientation);
-	set_direction(line[2], &camera->position);
+	camera->fov = ft_atoi(line[3]);
+	set_direction(line[1], &camera->position);
+	set_direction(line[2], &camera->orientation);
 }
 
 void	set_light(char **line, t_light *light)
@@ -95,16 +73,24 @@ void	set_ambient(char **line, t_ambient *ambient)
 	set_rgb(line[2], &ambient->color);
 }
 
-int	is_int(const char *c)
+int	is_float(const char *c)
 {
 	int	i;
+	int	float_flag;
 
 	i = 0;
+	float_flag = 0;
 	while (c[i] == '-' || c[i] == '+')
 		i++;
 	while (c[i])
 	{
-		if (!ft_isdigit(c[i]) || c[i] == '.')
+		if (c[i] == '.')
+		{
+			if (float_flag)
+				return (0);
+			float_flag = 1;
+		}
+		else if (!ft_isdigit(c[i]))
 			return (0);
 		i++;
 	}
@@ -122,7 +108,7 @@ int	check_range(char *line, int count, const int range[2])
 	{
 		while (line_arr[i] && i < count)
 		{
-			if (!is_int(line_arr[i]))
+			if (!is_float(line_arr[i]))
 				return (free_array(line_arr), 0);
 			i++;
 		}
@@ -132,7 +118,7 @@ int	check_range(char *line, int count, const int range[2])
 		i = 0;
 		while (line_arr[i] && i < count)
 		{
-			if (!is_int(line_arr[i])
+			if (!is_float(line_arr[i])
 				&& (ft_atoi(line_arr[i]) < range[0] || ft_atoi(line_arr[i]) > range[1]))
 				return (free_array(line_arr), 0);
 			i++;
@@ -147,6 +133,8 @@ int	parse_ambient(t_rt *rt, char *line)
 	char	**line_data;
 
 	line_data = ft_split(line, ' ');
+	if (line_data[3])
+		return (free_array(line_data), arg_error("ambient"));
 	if (check_range(line_data[1], 1, (int[]){0, 1})
 		&& check_range(line_data[2], 3, (int[]){0, 255}))
 	{
@@ -163,6 +151,8 @@ int	parse_camera(t_rt *rt, char *line)
 	char	**line_data;
 
 	line_data = ft_split(line, ' ');
+	if (line_data[4])
+		return (free_array(line_data), arg_error("camera"));
 	if (check_range(line_data[1], 3, NULL)
 		&& check_range(line_data[2], 3, (int[]){-1, 1})
 		&& check_range(line_data[3], 1, (int[]){0, 180}))
@@ -180,6 +170,8 @@ int	parse_light(t_rt *rt, char *line)
 	char	**line_data;
 
 	line_data = ft_split(line, ' ');
+	if (line_data[3])
+		return (free_array(line_data), arg_error("light"));
 	if (check_range(line_data[1], 3, NULL)
 		&& check_range(line_data[2], 2, (int[]){0, 1}))
 	{
@@ -189,50 +181,6 @@ int	parse_light(t_rt *rt, char *line)
 	}
 	free_array(line_data);
 	return (0);
-}
-
-void	set_sphere(char **line, t_object *object)
-{
-	t_sphere	*sphere;
-
-	sphere = (t_sphere *)malloc(sizeof(t_sphere));
-	sphere->diameter = atoi_double(line[2]);
-	set_direction(line[1], &sphere->position);
-	set_rgb(line[3], &sphere->color);
-	object->type = SPHERE;
-	object->object = sphere;
-	object->next = NULL;
-}
-
-int	parse_sphere(t_rt *rt, char *line)
-{
-	char	**line_data;
-
-	line_data = ft_split(line, ' ');
-	if (check_range(line_data[1], 3, NULL)
-		&& check_range(line_data[2], 1, (int[]){0, INT_MAX})
-		&& check_range(line_data[3], 3, (int[]){0, 255}))
-	{
-		set_sphere(line_data, (t_object *)&rt->object);
-		free_array(line_data);
-		return (1);
-	}
-	free_array(line_data);
-	return (0);
-}
-
-void	parse_plane(t_rt *rt, char *line)
-{
-	(void)rt;
-	(void)line;
-	//
-}
-
-void	parse_cylinder(t_rt *rt, char *line)
-{
-	(void)rt;
-	(void)line;
-	//
 }
 
 void	parsing_error(t_rt *rt, char *msg)
@@ -246,6 +194,7 @@ int	parse(t_rt *rt)
 {
 	char	*line;
 
+	rt->object = NULL;
 	while (1)
 	{
 		line = get_next_line(rt->file_fd);
@@ -259,12 +208,13 @@ int	parse(t_rt *rt)
 			return (free(line), parsing_error(rt, "LIGHT"), 1);
 		if (line[0] == 's' && line[1] == 'p' && !parse_sphere(rt, line))
 			return (free(line), parsing_error(rt, "SPHERE"), 1);
-		else if (line[0] == 'p' && line[1] == 'l')
-			parse_plane(rt, line);
-		else if (line[0] == 'c' && line[1] == 'y')
-			parse_cylinder(rt, line);
+		if (line[0] == 'p' && line[1] == 'l' && !parse_plane(rt, line))
+			return (free(line), parsing_error(rt, "PLANE"), 1);
+		else if (line[0] == 'c' && line[1] == 'y' && !parse_cylinder(rt, line))
+			return (free(line), parsing_error(rt, "CYLINDER"), 1);
 		free(line);
 	}
+	printf("OK\n");
 	free(line);
 	return (0);
 }

@@ -29,20 +29,6 @@ int	destroy(t_rt *rt)
 	exit(0);
 }
 
-void	free_objects(t_object *object)
-{
-	t_object	*temp;
-
-	while (object)
-	{
-		temp = object;
-		object = object->next;
-		if (temp->type == SPHERE)
-			free(temp->object);
-		free(temp);
-	}
-}
-
 unsigned int random_int(int state)
 {
 	(void)state;
@@ -241,19 +227,17 @@ t_object	*init_sphere(t_rt *rt)
 
 void init_objects(t_rt *rt, int width, int height)
 {
-//	t_object	*object;
+	t_object	*object;
 	int			i;
 
 	(void)width;
 	(void)height;
 	i = 0;
-//	object = NULL;
+	object = NULL;
 	while (i < rt->object_count) {
 		printf("object_count: %d\n", rt->object_count);
 		printf("%d\n", rt->object->type);
-		// if (rt->object->type == SPHERE)
-//		object = init_sphere(rt);
-//		ft_add_back(&rt->object, object);
+		ft_add_back(&rt->object, object);
 		i++;
 	}
 }
@@ -290,6 +274,8 @@ void	list_objects(t_rt *rt)
 	}
 	while (object)
 	{
+		printf("There are some objects\n");
+		printf("Object: %p\n", object);
 		if (object->type == SPHERE)
 			show_sphere(object);
 		else if (object->type == PLANE)
@@ -300,15 +286,6 @@ void	list_objects(t_rt *rt)
 			printf("Unknown object\n");
 		object = object->next;
 	}
-}
-
-void	init(t_rt *rt, int width, int height)
-{
-	(void)width;
-	(void)height;
-	rt->object = NULL;
-	init_scene(rt);
-//	init_objects(rt, width, height);
 }
 
 void	render(t_rt *rt, int width, int height)
@@ -352,47 +329,6 @@ int	is_hit(t_rt *rt, int x, int y)
 	return (0);
 }
 
-void	init_light(t_rt *rt)
-{
-	t_vector	position;
-	t_color		color;
-	double		brightness;
-
-	position.x = 500;
-	position.y = 200;
-	for (int i = 0; i < HEIGHT; i++)
-		my_mlx_pixel_put(&rt->img, (int)position.x, i, 0xFFFFFF);
-	for (int k = 0; k < WIDTH; k++)
-		my_mlx_pixel_put(&rt->img, k, (int)position.y, 0xFFFFFF);
-	position.z = 300;
-	color.r = 255;
-	color.g = 255;
-	color.b = 255;
-	brightness = 1;
-	rt->light.position = position;
-	rt->light.color = color;
-	rt->light.brightness = brightness;
-}
-
-void	init_scene(t_rt *rt)
-{
-	t_vector	position;
-	t_vector	direction;
-	t_camera	camera;
-
-	position.x = 0;
-	position.y = 0;
-	position.z = 0;
-	direction.x = 0;
-	direction.y = 0;
-	direction.z = 1;
-	camera.position = position;
-	camera.orientation = direction;
-	camera.fov = 60;
-	init_light(rt);
-	rt->camera = camera;
-}
-
 int main(int ac, char **av)
 {
 	t_rt	*rt;
@@ -414,9 +350,9 @@ int main(int ac, char **av)
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
 	rt->object = NULL;
+	rt->object_count = 0;
 	open_file(rt, av[1]);
-	rt->object_count = 1;
-	init(rt, WIDTH, HEIGHT);
+	printf("Object count: %d\n", rt->object_count);
 	render(rt, WIDTH, HEIGHT);
 	mlx_key_hook(rt->win, key_hook, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);

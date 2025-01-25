@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/01/20 16:04:25 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/01/25 14:25:43 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,22 @@ typedef struct s_sphere
 	t_color		color;
 }	t_sphere;
 
+typedef struct s_plane
+{
+	t_vector	position;
+	t_vector	direction;
+	t_color		color;
+}	t_plane;
+
+typedef struct s_cylinder
+{
+	t_vector	position;
+	t_vector	direction;
+	double		diameter;
+	double		height;
+	t_color		color;
+}	t_cylinder;
+
 typedef struct s_object
 {
 	t_type		type;
@@ -120,11 +136,12 @@ typedef struct s_rt
 	char		*file;
 	t_camera	camera;
 	t_img		img;
-	t_object	*object;
 	t_light		light;
+	t_object	*object;
 }	t_rt;
 
 int				check_file(t_rt *rt);
+int				arg_error(char *msg);
 void			open_file(t_rt *rt, char *path);
 int				is_rt_file(char *path);
 int				destroy(t_rt *rt);
@@ -152,3 +169,18 @@ double			atoi_double(char *str);
 void			free_array(char *arr[]);
 int				array_length(char **arr);
 void			parsing_error(t_rt *rt, char *msg);
+int				is_float(const char *c);
+int				check_range(char *line, int count, const int range[2]);
+void			set_direction(char *line, t_vector *directions);
+void			set_rgb(char *line, t_color *colors);
+int				parse_sphere(t_rt *rt, char *line);
+void			set_sphere(char **line, t_object *object);
+int				parse_plane(t_rt *rt, char *line);
+void			set_plane(char **line, t_object *object);
+int				parse_cylinder(t_rt *rt, char *line);
+void			set_cylinder(char **line, t_object *object);
+int				parse_ambient(t_rt *rt, char *line);
+void			set_ambient(char **line, t_ambient *ambient);
+int				parse_camera(t_rt *rt, char *line);
+void			set_camera(char **line, t_camera *camera);
+
