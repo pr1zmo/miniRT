@@ -96,14 +96,16 @@ t_vector	vector_normalize(t_vector v)
 	return ((t_vector){v.x / length, v.y / length, v.z / length});
 }
 
-t_color calculate_lighting(t_vector point, t_vector normal, t_vector view, t_light light, t_color object_color)
+t_color calculate_lighting(t_vector point, t_vector normal, t_vector view, t_rt *rt, t_color object_color)
 {
+	t_light light = rt->light;
+
 	t_color	result = {0, 0, 0};
 	t_vector	light_dir = vector_normalize(vector_subtract(light.position, point));
 	t_vector	reflect_dir = vector_subtract(vector_scale(normal, 2 * vector_dot(normal, light_dir)), light_dir);
 
 	// Ambient
-	double	ambient_strength = 0.1;
+	double	ambient_strength = light.ambient.lighting;
 	result.r += object_color.r * ambient_strength;
 	result.g += object_color.g * ambient_strength;
 	result.b += object_color.b * ambient_strength;
@@ -132,8 +134,13 @@ t_color calculate_lighting(t_vector point, t_vector normal, t_vector view, t_lig
 t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 {
 	t_color	color;
+	t_sphere	*sphere;
+	(void)x;
+	(void)y;
 
-	color = calculate_lighting((t_vector){x, y, 0}, (t_vector){0, 0, 1}, rt->camera.orientation, rt->light, ((t_sphere *)object->object)->color);
+	sphere = (t_sphere *)object->object;
+	printf("Object color: (%.2f, %.2f, %.2f)\n", sphere->color.r, sphere->color.g, sphere->color.b);
+	color = calculate_lighting(sphere->position, (t_vector){0, 0, 1}, (t_vector){0, 0, 1}, rt, sphere->color);
 	return (color);
 }
 
@@ -174,7 +181,7 @@ void	init_rays(t_rt *rt, int width, int height)
 	}
 }
 
-void	ft_add_back(t_object **list, t_object *new)
+void ft_add_back(t_object **list, t_object *new, int type)
 {
 	t_object *temp;
 
@@ -183,6 +190,7 @@ void	ft_add_back(t_object **list, t_object *new)
 	if (*list == NULL)
 	{
 		*list = new;
+		(*list)->type = type;
 		new->next = NULL;
 		return;
 	}
@@ -190,76 +198,37 @@ void	ft_add_back(t_object **list, t_object *new)
 	while (temp->next != NULL)
 		temp = temp->next;
 	temp->next = new;
+	temp->type = type;
 	new->next = NULL;
 }
 
-t_object	*init_sphere(t_rt *rt)
+void	show_sphere(t_sphere *sphere)
 {
-	t_sphere	*sphere;
-	t_object	*object;
-
-	(void)rt;
-	sphere = (t_sphere *)malloc(sizeof(t_sphere));
-	if (sphere == NULL)
-	{
-		ft_putstr_fd("Error: malloc() failed for sphere\n", 2);
-		return (NULL);
-	}
-	sphere->color.r = 255;
-	sphere->color.g = 0;
-	sphere->color.b = 0;
-	sphere->diameter = 200;
-	sphere->position.x = 500;
-	sphere->position.y = 200;
-	sphere->position.z = 0;
-	object = (t_object *)malloc(sizeof(t_object));
-	if (object == NULL)
-	{
-		ft_putstr_fd("Error: malloc() failed for object\n", 2);
-		free(sphere);
-		return (NULL);
-	}
-	object->type = SPHERE;
-	object->object = sphere;
-	object->next = NULL;
-	return (object);
-}
-
-void init_objects(t_rt *rt, int width, int height)
-{
-	t_object	*object;
-	int			i;
-
-	(void)width;
-	(void)height;
-	i = 0;
-	object = NULL;
-	while (i < rt->object_count) {
-		printf("object_count: %d\n", rt->object_count);
-		printf("%d\n", rt->object->type);
-		ft_add_back(&rt->object, object);
-		i++;
-	}
-}
-
-void	show_sphere(t_object *object)
-{
-	t_sphere *sphere;
-
-	sphere = (t_sphere *)object->object;
+	printf("Sphere: %p\n", sphere);
+	printf("Into the sphere\n");
 	printf("Sphere: position=(%.2f, %.2f, %.2f), diameter=%.2f, color=(%.2f, %.2f, %.2f)\n",
 		sphere->position.x, sphere->position.y, sphere->position.z,
 		sphere->diameter, sphere->color.r, sphere->color.g, sphere->color.b);
+	printf("Here\n");
 }
 
 void	show_plane(t_object *object)
 {
-	(void)object;
+	printf("Plane: %p\n", object);
+	printf("Plane: position=(%.2f, %.2f, %.2f), direction=(%.2f, %.2f, %.2f), color=(%.2f, %.2f, %.2f)\n",
+		((t_plane *)object->object)->position.x, ((t_plane *)object->object)->position.y, ((t_plane *)object->object)->position.z,
+		((t_plane *)object->object)->direction.x, ((t_plane *)object->object)->direction.y, ((t_plane *)object->object)->direction.z,
+		((t_plane *)object->object)->color.r, ((t_plane *)object->object)->color.g, ((t_plane *)object->object)->color.b);
 }
 
 void	show_cylinder(t_object *object)
 {
-	(void)object;
+	printf("Cylinder: %p\n", object);
+	printf("Cylinder: position=(%.2f, %.2f, %.2f), direction=(%.2f, %.2f, %.2f), diameter=%.2f, height=%.2f, color=(%.2f, %.2f, %.2f)\n",
+		((t_cylinder *)object->object)->position.x, ((t_cylinder *)object->object)->position.y, ((t_cylinder *)object->object)->position.z,
+		((t_cylinder *)object->object)->direction.x, ((t_cylinder *)object->object)->direction.y, ((t_cylinder *)object->object)->direction.z,
+		((t_cylinder *)object->object)->diameter, ((t_cylinder *)object->object)->height,
+		((t_cylinder *)object->object)->color.r, ((t_cylinder *)object->object)->color.g, ((t_cylinder *)object->object)->color.b);
 }
 
 void	list_objects(t_rt *rt)
@@ -272,12 +241,12 @@ void	list_objects(t_rt *rt)
 		printf("No objects\n");
 		return;
 	}
+//	int i = 0;
 	while (object)
 	{
-		printf("There are some objects\n");
-		printf("Object: %p\n", object);
+		printf("Object %d\n", rt->object_count);
 		if (object->type == SPHERE)
-			show_sphere(object);
+			show_sphere(object->object);
 		else if (object->type == PLANE)
 			show_plane(object);
 		else if (object->type == CYLINDER)
@@ -349,10 +318,9 @@ int main(int ac, char **av)
 	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
-	rt->object = NULL;
+//	rt->object = (t_object *) malloc(sizeof(t_object));
 	rt->object_count = 0;
 	open_file(rt, av[1]);
-	printf("Object count: %d\n", rt->object_count);
 	render(rt, WIDTH, HEIGHT);
 	mlx_key_hook(rt->win, key_hook, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);

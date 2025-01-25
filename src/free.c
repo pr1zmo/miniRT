@@ -21,8 +21,8 @@ void	free_objects(t_object *object)
 	{
 		temp = object;
 		object = object->next;
-		if (temp->type == SPHERE)
-			free(temp->object);
+//		if (temp->type == SPHERE)
+		free(temp->object);
 		free(temp);
 	}
 }

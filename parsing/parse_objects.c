@@ -13,10 +13,9 @@ int	parse_cylinder(t_rt *rt, char *line)
 		&& check_range(line_data[4], 1, (int[]){0, INT_MAX})
 		&& check_range(line_data[5], 3, (int[]){0, 255}))
 	{
-		set_cylinder(line_data, (t_object *)&rt->object);
+		set_cylinder(line_data, &rt->object);
 		free_array(line_data);
 		rt->object_count ++;
-		ft_add_back(&rt->object, (t_object *)rt->object);
 		return (1);
 	}
 	return (0);
@@ -33,10 +32,9 @@ int	parse_plane(t_rt *rt, char *line)
 		&& check_range(line_data[2], 3, (int[]){-1, 1})
 		&& check_range(line_data[3], 3, (int[]){0, 255}))
 	{
-		set_plane(line_data, rt->object);
+		set_plane(line_data, &rt->object);
 		free_array(line_data);
 		rt->object_count ++;
-		ft_add_back(&rt->object, (t_object *)&rt->object);
 		return (1);
 	}
 	return (0);
@@ -53,10 +51,9 @@ int	parse_sphere(t_rt *rt, char *line)
 		&& check_range(line_data[2], 1, (int[]){0, INT_MAX})
 		&& check_range(line_data[3], 3, (int[]){0, 255}))
 	{
-		set_sphere(line_data, (t_object *)&rt->object);
+		set_sphere(line_data, &rt->object);
 		free_array(line_data);
 		rt->object_count ++;
-		ft_add_back(&rt->object, (t_object *)&rt->object);
 		return (1);
 	}
 	free_array(line_data);
