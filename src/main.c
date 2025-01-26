@@ -99,13 +99,14 @@ t_vector	vector_normalize(t_vector v)
 t_color calculate_lighting(t_vector point, t_vector normal, t_vector view, t_rt *rt, t_color object_color)
 {
 	t_light light = rt->light;
+	t_ambient ambient = rt->ambient;
 
 	t_color	result = {0, 0, 0};
 	t_vector	light_dir = vector_normalize(vector_subtract(light.position, point));
 	t_vector	reflect_dir = vector_subtract(vector_scale(normal, 2 * vector_dot(normal, light_dir)), light_dir);
 
 	// Ambient
-	double	ambient_strength = light.ambient.lighting;
+	double	ambient_strength = ambient.lighting;
 	result.r += object_color.r * ambient_strength;
 	result.g += object_color.g * ambient_strength;
 	result.b += object_color.b * ambient_strength;
@@ -139,7 +140,7 @@ t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 	(void)y;
 
 	sphere = (t_sphere *)object->object;
-	printf("Object color: (%.2f, %.2f, %.2f)\n", sphere->color.r, sphere->color.g, sphere->color.b);
+	// printf("Object color: (%.2f, %.2f, %.2f)\n", sphere->color.r, sphere->color.g, sphere->color.b);
 	color = calculate_lighting(sphere->position, (t_vector){0, 0, 1}, (t_vector){0, 0, 1}, rt, sphere->color);
 	return (color);
 }
@@ -185,6 +186,7 @@ void ft_add_back(t_object **list, t_object *new, int type)
 {
 	t_object *temp;
 
+	printf("Type: %d\n", type);
 	if (new == NULL)
 		return;
 	if (*list == NULL)
@@ -206,45 +208,53 @@ void	show_sphere(t_sphere *sphere)
 {
 	printf("Sphere: %p\n", sphere);
 	printf("Into the sphere\n");
-	printf("Sphere: position=(%.2f, %.2f, %.2f), diameter=%.2f, color=(%.2f, %.2f, %.2f)\n",
+	printf("Sphere: position=(%.2f, %.2f, %.2f)\n\tdiameter=%.2f\n\tcolor=(%.2f, %.2f, %.2f)\n",
 		sphere->position.x, sphere->position.y, sphere->position.z,
 		sphere->diameter, sphere->color.r, sphere->color.g, sphere->color.b);
-	printf("Here\n");
 }
 
 void	show_plane(t_object *object)
 {
+	t_plane	*plane;
+
+	plane = (t_plane *)object->object;
 	printf("Plane: %p\n", object);
-	printf("Plane: position=(%.2f, %.2f, %.2f), direction=(%.2f, %.2f, %.2f), color=(%.2f, %.2f, %.2f)\n",
-		((t_plane *)object->object)->position.x, ((t_plane *)object->object)->position.y, ((t_plane *)object->object)->position.z,
-		((t_plane *)object->object)->direction.x, ((t_plane *)object->object)->direction.y, ((t_plane *)object->object)->direction.z,
-		((t_plane *)object->object)->color.r, ((t_plane *)object->object)->color.g, ((t_plane *)object->object)->color.b);
+	printf("Plane: position=(%.2f, %.2f, %.2f)\n\tdirection=(%.2f, %.2f, %.2f)\n\tcolor=(%.2f, %.2f, %.2f)\n",
+		plane->position.x, plane->position.y, plane->position.z,
+		plane->direction.x, plane->direction.y, plane->direction.z,
+		plane->color.r, plane->color.g, plane->color.b);
 }
 
 void	show_cylinder(t_object *object)
 {
+	t_cylinder	*clynder;
+
+	clynder = (t_cylinder *)object->object;
 	printf("Cylinder: %p\n", object);
-	printf("Cylinder: position=(%.2f, %.2f, %.2f), direction=(%.2f, %.2f, %.2f), diameter=%.2f, height=%.2f, color=(%.2f, %.2f, %.2f)\n",
-		((t_cylinder *)object->object)->position.x, ((t_cylinder *)object->object)->position.y, ((t_cylinder *)object->object)->position.z,
-		((t_cylinder *)object->object)->direction.x, ((t_cylinder *)object->object)->direction.y, ((t_cylinder *)object->object)->direction.z,
-		((t_cylinder *)object->object)->diameter, ((t_cylinder *)object->object)->height,
-		((t_cylinder *)object->object)->color.r, ((t_cylinder *)object->object)->color.g, ((t_cylinder *)object->object)->color.b);
+	printf("Cylinder: position=(%.2f, %.2f, %.2f)\n\tdirection=(%.2f, %.2f, %.2f)\n\tdiameter=%.2f\n\theight=%.2f\n\tcolor=(%.2f, %.2f, %.2f)\n",
+		clynder->position.x, clynder->position.y, clynder->position.z,
+		clynder->direction.x, clynder->direction.y, clynder->direction.z,
+		clynder->diameter, clynder->height,
+		clynder->color.r, clynder->color.g, clynder->color.b);
 }
 
 void	list_objects(t_rt *rt)
 {
 	t_object	*object;
+	t_camera	camera;
 
+	camera = rt->camera;
+	printf("camera fov: %f\n\tcamera'a orientation: {%f, %f, %f}\n\tcamera's position: {%f, %f, %f}\n\t", camera.fov, camera.orientation.x, camera.orientation.y, camera.orientation.x, camera.position.x, camera.position.y, camera.position.z);
 	object = rt->object;
 	if (!object)
 	{
 		printf("No objects\n");
 		return;
 	}
-//	int i = 0;
-	while (object)
+	int i = 0;
+	while (i < rt->object_count)
 	{
-		printf("Object %d\n", rt->object_count);
+		printf("The type from the list_object function: %d\n", object->type);
 		if (object->type == SPHERE)
 			show_sphere(object->object);
 		else if (object->type == PLANE)
@@ -254,14 +264,16 @@ void	list_objects(t_rt *rt)
 		else
 			printf("Unknown object\n");
 		object = object->next;
+		i++;
 	}
 }
 
 void	render(t_rt *rt, int width, int height)
 {
 	mlx_clear_window(rt->mlx, rt->win);
-	list_objects(rt);
+//	list_objects(rt);
 	init_rays(rt, width, height);
+	printf("Rendering...\n");
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
 }
 
@@ -318,7 +330,6 @@ int main(int ac, char **av)
 	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
-//	rt->object = (t_object *) malloc(sizeof(t_object));
 	rt->object_count = 0;
 	open_file(rt, av[1]);
 	render(rt, WIDTH, HEIGHT);

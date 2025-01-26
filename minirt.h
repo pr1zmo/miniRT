@@ -75,7 +75,6 @@ typedef struct s_light
 {
 	t_vector	position;
 	t_color		color;
-	t_ambient	ambient;
 	double		brightness;
 }	t_light;
 
@@ -134,6 +133,7 @@ typedef struct s_rt
 	int			file_fd;
 	int			object_count;
 	char		*file;
+	t_ambient	ambient;
 	t_camera	camera;
 	t_img		img;
 	t_light		light;

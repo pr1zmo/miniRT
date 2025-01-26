@@ -6,6 +6,8 @@ void	set_cylinder(char **line, t_object **list)
 	t_object	*new_object;
 
 	cylinder = (t_cylinder *)malloc(sizeof(t_cylinder));
+	if (!cylinder)
+		return;
 	cylinder->diameter = atoi_double(line[3]);
 	cylinder->height = atoi_double(line[4]);
 	set_direction(line[1], &cylinder->position);
@@ -13,6 +15,8 @@ void	set_cylinder(char **line, t_object **list)
 	set_rgb(line[5], &cylinder->color);
 
 	new_object = (t_object *)malloc(sizeof(t_object));
+	if (!new_object)
+		return;
 	new_object->type = CYLINDER;
 	new_object->object = (void *)cylinder;
 	new_object->next = NULL;
@@ -40,29 +44,21 @@ void set_plane(char **line, t_object **list)
 	ft_add_back(list, new_object, PLANE);
 }
 
-/*
-void	set_sphere(char **line, t_object **list)
-{
-	t_sphere	*sphere;
-
-	sphere = (t_sphere *)malloc(sizeof(t_sphere));
-	sphere->diameter = atoi_double(line[2]);
-	set_direction(line[1], &sphere->position);
-	set_rgb(line[3], &sphere->color);
-	ft_add_back(list, (t_object *)sphere, SPHERE);
-}*/
-
 void set_sphere(char **line, t_object **list)
 {
 	t_sphere *sphere;
 	t_object *new_object;
 
 	sphere = (t_sphere *)malloc(sizeof(t_sphere));
+	if (!sphere)
+		return;
 	sphere->diameter = atoi_double(line[2]);
 	set_direction(line[1], &sphere->position);
 	set_rgb(line[3], &sphere->color);
 
 	new_object = (t_object *)malloc(sizeof(t_object));
+	if (!new_object)
+		return;
 	new_object->type = SPHERE;
 	new_object->object = (void *)sphere;
 	new_object->next = NULL;

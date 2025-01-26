@@ -6,10 +6,10 @@
 
 char *get_next_line(int fd)
 {
-	char buff[2];
-	char *line = NULL;
-	char *temp;
-	ssize_t bytes_read;
+	char		buff[2];
+	char	*line = NULL;
+	char		*temp;
+	ssize_t		bytes_read;
 
 	while ((bytes_read = read(fd, &buff[0], 1)) > 0)
 	{
@@ -29,7 +29,7 @@ char *get_next_line(int fd)
 	}
 	if (bytes_read < 0)
 		return (free(line), NULL);
-	return line;
+	return (line);
 }
 
 void	set_direction(char *line, t_vector *directions)
@@ -138,7 +138,7 @@ int	parse_ambient(t_rt *rt, char *line)
 	if (check_range(line_data[1], 1, (int[]){0, 1})
 		&& check_range(line_data[2], 3, (int[]){0, 255}))
 	{
-		set_ambient(line_data, &rt->light.ambient);
+		set_ambient(line_data, &rt->ambient);
 		free_array(line_data);
 		return (1);
 	}
@@ -190,31 +190,49 @@ void	parsing_error(t_rt *rt, char *msg)
 	destroy(rt);
 }
 
+int	valid_line(char *arg)
+{
+	if (!arg)
+		return (0);
+	if (ft_strncmp(arg, "A", 0) || ft_strncmp(arg, "C", 0)
+		|| ft_strncmp(arg, "L", 0) || ft_strncmp(arg, "sp", 0)
+		|| ft_strncmp(arg, "pl", 0) || ft_strncmp(arg, "cy", 0))
+		return (1);
+	return (0);
+}
+
 int	parse(t_rt *rt)
 {
 	char	*line;
+	char	*first_arg;
 
 	rt->object = NULL;
-	while (1)
-	{
+	while (1) {
 		line = get_next_line(rt->file_fd);
 		if (!line)
 			break;
-		if (line[0] == 'A' && !parse_ambient(rt, line))
-			return (free(line), parsing_error(rt, "AMBIENT"), 1);
-		if (line[0] == 'C' && !parse_camera(rt, line))
-			return (free(line), parsing_error(rt, "CAMERA"), 1);
-		if (line[0] == 'L' && !parse_light(rt, line))
-			return (free(line), parsing_error(rt, "LIGHT"), 1);
-		if (line[0] == 's' && line[1] == 'p' && !parse_sphere(rt, line))
-			return (free(line), parsing_error(rt, "SPHERE"), 1);
-		if (line[0] == 'p' && line[1] == 'l' && !parse_plane(rt, line))
-			return (free(line), parsing_error(rt, "PLANE"), 1);
-		else if (line[0] == 'c' && line[1] == 'y' && !parse_cylinder(rt, line))
-			return (free(line), parsing_error(rt, "CYLINDER"), 1);
-		free(line);
+		first_arg = ft_substr(line, 0, ft_strchr(line, ' ') - line);
+		if (!valid_line(first_arg))
+			return (free(line), free(first_arg), parsing_error(rt, "INVALID LINE"), 1);
+		else {
+			if (!ft_strncmp(first_arg, "A", 0) && !parse_ambient(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "AMBIENT"), 1);
+			else if (!ft_strncmp(first_arg, "C", 0) && !parse_camera(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "CAMERA"), 1);
+			else if (!ft_strncmp(first_arg, "L", 0) && !parse_light(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "LIGHT"), 1);
+			else if (!ft_strncmp(first_arg, "sp", 0) && !parse_sphere(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "SPHERE"), 1);
+			else if (!ft_strncmp(first_arg, "pl", 0) && !parse_plane(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "PLANE"), 1);
+			else if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
+				return (free(line), free(first_arg), parsing_error(rt, "CYLINDER"), 1);
+		}
 	}
-	printf("OK\n");
 	free(line);
+	free(first_arg);
+	printf("OK\n");
+	printf("Current type should be 0: %d\n", rt->object->type);
+//	list_objects(rt);
 	return (0);
 }
