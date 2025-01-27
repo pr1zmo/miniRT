@@ -140,24 +140,25 @@ typedef struct s_rt
 	t_object	*object;
 }	t_rt;
 
-int				check_file(t_rt *rt);
-int				arg_error(char *msg);
-void			open_file(t_rt *rt, char *path);
-int				is_rt_file(char *path);
-int				destroy(t_rt *rt);
-void			free_objects(t_object *object);
+/*
 unsigned int	random_int(int state);
 void			my_mlx_pixel_put(t_img *data, int x, int y, int color);
 int				check_collision(t_object *object, int x, int y);
 void			check_hit(t_rt *rt, int x, int y);
 void			init_rays(t_rt *rt, int width, int height);
-void			ft_add_back(t_object **list, t_object *new, int type);
-void			list_objects(t_rt *rt);
 void			init(t_rt *rt, int width, int height);
 void			render(t_rt *rt, int width, int height);
 int				key_hook(int keycode, t_rt *rt);
 int				is_hit(t_rt *rt, int x, int y);
-void			init_scene(t_rt *rt);
+void			init_scene(t_rt *rt);*/
+void			ft_add_back(t_object **list, t_object *new, int type);
+int				check_file(t_rt *rt);
+void			list_objects(t_rt *rt);
+int				arg_error(char *msg);
+int				is_rt_file(char *path);
+int				destroy(t_rt *rt);
+void			open_file(t_rt *rt, char *path);
+void			free_objects(t_object *object);
 int				main(int ac, char **av);
 int				parse(t_rt *rt);
 double			atoi_double(char *str);
@@ -178,4 +179,10 @@ int				parse_ambient(t_rt *rt, char *line);
 void			set_ambient(char **line, t_ambient *ambient);
 int				parse_camera(t_rt *rt, char *line);
 void			set_camera(char **line, t_camera *camera);
+
+// Debugging functions
+void			show_sphere(t_sphere *sphere);
+void			show_plane(t_object *object);
+void			show_cylinder(t_object *object);
+void			list_objects(t_rt *rt);
 

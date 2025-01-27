@@ -16,8 +16,14 @@ char	*ft_strjoin(char *line, char *buf)
 {
 	char	*join;
 
-	if (!line && !buf)
+	if (!line || !buf)
+	{
+		if (line)
+			return (ft_strdup(line));
+		if (buf)
+			return (ft_strdup(buf));
 		return (NULL);
+	}
 	join = (char *)malloc(ft_strlen(line) + ft_strlen(buf) + 1);
 	if (!join)
 		return (NULL);

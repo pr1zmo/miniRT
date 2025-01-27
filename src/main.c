@@ -49,7 +49,7 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 	}
 }
 
-int	draw_sphere(t_object *object, int x, int y)
+/*int	draw_sphere(t_object *object, int x, int y)
 {
 	t_sphere	*sphere;
 	double		r;
@@ -105,12 +105,12 @@ int	check_collision(t_object *object, int x, int y)
 {
 	if (object != NULL)
 	{
-		if (object->type == SPHERE)
-			draw_sphere(object, x, y);
-		else if (object->type == PLANE)
-			draw_plane(object, x, y);
-		else if (object->type == CYLINDER)
-			draw_cylinder(object, x, y);
+		if (object->type == SPHERE && draw_sphere(object, x, y))
+			return (1);
+		if (object->type == PLANE && draw_plane(object, x, y))
+			return (1);
+		if (object->type == CYLINDER && draw_cylinder(object, x, y))
+			return (1);
 	}
 	return (0);
 }
@@ -187,7 +187,6 @@ t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 	(void)y;
 
 	sphere = (t_sphere *)object->object;
-	// printf("Object color: (%.2f, %.2f, %.2f)\n", sphere->color.r, sphere->color.g, sphere->color.b);
 	color = calculate_lighting(sphere->position, (t_vector){0, 0, 1}, (t_vector){0, 0, 1}, rt, sphere->color);
 	return (color);
 }
@@ -216,7 +215,7 @@ void	check_hit(t_rt *rt, int x, int y)
 		if (check_collision(object, x, y))
 		{
 			color = create_trgb(set_color(x, y, object, rt));
-			printf("Setting pixel at (%d, %d) with color: %d\n", x, y, color);
+			// printf("Setting pixel at (%d, %d) with color: %d\n", x, y, color);
 			my_mlx_pixel_put(&rt->img, x, y, color);
 			return;
 		}
@@ -226,23 +225,19 @@ void	check_hit(t_rt *rt, int x, int y)
 
 void	init_rays(t_rt *rt, int width, int height)
 {
+	(void)rt;
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
 		{
-			check_hit(rt, i, j);
+			// check_hit(rt, i, j);
 		}
 	}
-}
-
-void	debug()
-{
-	printf("Into the debug function\n");
-}
+}*/
 
 void ft_add_back(t_object **list, t_object *new, int type)
 {
-	t_object *temp;
+	t_object	*temp;
 
 	if (new == NULL)
 		return;
@@ -262,75 +257,13 @@ void ft_add_back(t_object **list, t_object *new, int type)
 	}
 }
 
-void	show_sphere(t_sphere *sphere)
-{
-	printf("Sphere: %p\n", sphere);
-	printf("Into the sphere\n");
-	printf("Sphere: position=(%.2f, %.2f, %.2f)\n\tdiameter=%.2f\n\tcolor=(%.2f, %.2f, %.2f)\n",
-		sphere->position.x, sphere->position.y, sphere->position.z,
-		sphere->diameter, sphere->color.r, sphere->color.g, sphere->color.b);
-}
-
-void	show_plane(t_object *object)
-{
-	t_plane	*plane;
-
-	plane = (t_plane *)object->object;
-	printf("Plane: %p\n", object);
-	printf("Plane: position=(%.2f, %.2f, %.2f)\n\tdirection=(%.2f, %.2f, %.2f)\n\tcolor=(%.2f, %.2f, %.2f)\n",
-		plane->position.x, plane->position.y, plane->position.z,
-		plane->direction.x, plane->direction.y, plane->direction.z,
-		plane->color.r, plane->color.g, plane->color.b);
-}
-
-void	show_cylinder(t_object *object)
-{
-	t_cylinder	*clynder;
-
-	clynder = (t_cylinder *)object->object;
-	printf("Cylinder: %p\n", object);
-	printf("Cylinder: position=(%.2f, %.2f, %.2f)\n\tdirection=(%.2f, %.2f, %.2f)\n\tdiameter=%.2f\n\theight=%.2f\n\tcolor=(%.2f, %.2f, %.2f)\n",
-		clynder->position.x, clynder->position.y, clynder->position.z,
-		clynder->direction.x, clynder->direction.y, clynder->direction.z,
-		clynder->diameter, clynder->height,
-		clynder->color.r, clynder->color.g, clynder->color.b);
-}
-
-void	list_objects(t_rt *rt)
-{
-	t_object	*object;
-	t_camera	camera;
-
-	camera = rt->camera;
-	printf("camera fov: %f\n\tcamera'a orientation: {%f, %f, %f}\n\tcamera's position: {%f, %f, %f}\n\t", camera.fov, camera.orientation.x, camera.orientation.y, camera.orientation.x, camera.position.x, camera.position.y, camera.position.z);
-	object = rt->object;
-	if (!object)
-	{
-		printf("No objects\n");
-		return;
-	}
-	int i = 0;
-	while (i < rt->object_count)
-	{
-		printf("The type from the list_object function: %d\n", object->type);
-		if (object->type == SPHERE)
-			show_sphere(object->object);
-		else if (object->type == PLANE)
-			show_plane(object);
-		else if (object->type == CYLINDER)
-			show_cylinder(object);
-		else
-			printf("Unknown object\n");
-		object = object->next;
-		i++;
-	}
-}
-
 void	render(t_rt *rt, int width, int height)
 {
+	(void)width;
+	(void)height;
 	mlx_clear_window(rt->mlx, rt->win);
 	list_objects(rt);
-	init_rays(rt, width, height);
+	// init_rays(rt, width, height);
 	printf("Rendering...\n");
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
 }

@@ -214,20 +214,18 @@ int	parse(t_rt *rt)
 		first_arg = ft_substr(line, 0, ft_strchr(line, ' ') - line);
 		if (!valid_line(first_arg))
 			return (free(line), free(first_arg), parsing_error(rt, "INVALID LINE"), 1);
-		else {
-			if (!ft_strncmp(first_arg, "A", 0) && !parse_ambient(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "AMBIENT"), 1);
-			else if (!ft_strncmp(first_arg, "C", 0) && !parse_camera(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "CAMERA"), 1);
-			else if (!ft_strncmp(first_arg, "L", 0) && !parse_light(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "LIGHT"), 1);
-			else if (!ft_strncmp(first_arg, "sp", 0) && !parse_sphere(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "SPHERE"), 1);
-			else if (!ft_strncmp(first_arg, "pl", 0) && !parse_plane(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "PLANE"), 1);
-			else if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
-				return (free(line), free(first_arg), parsing_error(rt, "CYLINDER"), 1);
-		}
+		if (!ft_strncmp(first_arg, "A", 0) && !parse_ambient(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "AMBIENT"), 1);
+		if (!ft_strncmp(first_arg, "C", 0) && !parse_camera(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "CAMERA"), 1);
+		if (!ft_strncmp(first_arg, "L", 0) && !parse_light(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "LIGHT"), 1);
+		if (!ft_strncmp(first_arg, "sp", 0) && !parse_sphere(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "SPHERE"), 1);
+		if (!ft_strncmp(first_arg, "pl", 0) && !parse_plane(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "PLANE"), 1);
+		if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
+			return (free(line), free(first_arg), parsing_error(rt, "CYLINDER"), 1);
 		free(line);
 		free(first_arg);
 	}

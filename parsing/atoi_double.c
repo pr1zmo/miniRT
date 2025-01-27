@@ -9,7 +9,7 @@ double atoi_double(char *str)
 
 	if (ft_atoi(str) > INT_MAX)
 		return (0.0);
-	while ((*str) == ' ')
+	while (*str == ' ')
 		str++;
 	while (*str == '-' || *str == '+')
 	{
