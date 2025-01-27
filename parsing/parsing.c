@@ -194,9 +194,9 @@ int	valid_line(char *arg)
 {
 	if (!arg)
 		return (0);
-	if (ft_strncmp(arg, "A", 0) || ft_strncmp(arg, "C", 0)
-		|| ft_strncmp(arg, "L", 0) || ft_strncmp(arg, "sp", 0)
-		|| ft_strncmp(arg, "pl", 0) || ft_strncmp(arg, "cy", 0))
+	if (!ft_strncmp(arg, "A", 0) || !ft_strncmp(arg, "C", 0)
+		|| !ft_strncmp(arg, "L", 0) || !ft_strncmp(arg, "sp", 0)
+		|| !ft_strncmp(arg, "pl", 0) || !ft_strncmp(arg, "cy", 0))
 		return (1);
 	return (0);
 }
@@ -228,11 +228,9 @@ int	parse(t_rt *rt)
 			else if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
 				return (free(line), free(first_arg), parsing_error(rt, "CYLINDER"), 1);
 		}
+		free(line);
+		free(first_arg);
 	}
-	free(line);
-	free(first_arg);
 	printf("OK\n");
-	printf("Current type should be 0: %d\n", rt->object->type);
-//	list_objects(rt);
 	return (0);
 }

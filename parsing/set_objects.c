@@ -55,13 +55,11 @@ void set_sphere(char **line, t_object **list)
 	sphere->diameter = atoi_double(line[2]);
 	set_direction(line[1], &sphere->position);
 	set_rgb(line[3], &sphere->color);
-
 	new_object = (t_object *)malloc(sizeof(t_object));
 	if (!new_object)
 		return;
 	new_object->type = SPHERE;
 	new_object->object = (void *)sphere;
 	new_object->next = NULL;
-
 	ft_add_back(list, new_object, SPHERE);
 }

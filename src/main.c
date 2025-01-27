@@ -49,21 +49,68 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 	}
 }
 
+int	draw_sphere(t_object *object, int x, int y)
+{
+	t_sphere	*sphere;
+	double		r;
+	double		x1;
+	double		y1;
+
+	sphere = (t_sphere *)object->object;
+	r = sphere->diameter / 2;
+	x1 = sphere->position.x;
+	y1 = sphere->position.y;
+	if ((x - x1) * (x - x1) + (y - y1) * (y - y1) <= r * r)
+		return (1);
+	return (0);
+}
+
+int	draw_plane(t_object *object, int x, int y)
+{
+	t_plane	*plane;
+	double		x1;
+	double		y1;
+	double		z1;
+	double		d;
+
+	plane = (t_plane *)object->object;
+	x1 = plane->position.x;
+	y1 = plane->position.y;
+	z1 = plane->position.z;
+	d = plane->direction.x * x1 + plane->direction.y * y1 + plane->direction.z * z1;
+	if (plane->direction.x * x + plane->direction.y * y + plane->direction.z * z1 == d)
+		return (1);
+	return (0);
+}
+
+int	draw_cylinder(t_object *object, int x, int y)
+{
+	t_cylinder	*cylinder;
+	double		x1;
+	double		y1;
+	double		z1;
+	double		d;
+
+	cylinder = (t_cylinder *)object->object;
+	x1 = cylinder->position.x;
+	y1 = cylinder->position.y;
+	z1 = cylinder->position.z;
+	d = cylinder->direction.x * x1 + cylinder->direction.y * y1 + cylinder->direction.z * z1;
+	if (cylinder->direction.x * x + cylinder->direction.y * y + cylinder->direction.z * z1 == d)
+		return (1);
+	return (0);
+}
+
 int	check_collision(t_object *object, int x, int y)
 {
-	if (object != NULL && object->type == SPHERE)
+	if (object != NULL)
 	{
-		t_sphere	*sphere;
-		double		r;
-		double		x1;
-		double		y1;
-
-		sphere = (t_sphere *)object->object;
-		r = sphere->diameter / 2;
-		x1 = sphere->position.x;
-		y1 = sphere->position.y;
-		if ((x - x1) * (x - x1) + (y - y1) * (y - y1) <= r * r)
-			return (1);
+		if (object->type == SPHERE)
+			draw_sphere(object, x, y);
+		else if (object->type == PLANE)
+			draw_plane(object, x, y);
+		else if (object->type == CYLINDER)
+			draw_cylinder(object, x, y);
 	}
 	return (0);
 }
@@ -145,9 +192,9 @@ t_color	set_color(int x, int y, t_object *object, t_rt *rt)
 	return (color);
 }
 
-int create_trgb(int t, int r, int g, int b)
+int create_trgb(t_color color)
 {
-	return (t << 24 | r << 16 | g << 8 | b);
+	return (0 << 24 | (int)color.r << 16 | (int)color.g << 8 | (int)color.b);
 }
 
 void	check_hit(t_rt *rt, int x, int y)
@@ -155,16 +202,22 @@ void	check_hit(t_rt *rt, int x, int y)
 	t_object	*object;
 	// t_sphere	*sphere;
 	// int			angle;
-	t_color		color;
+	int		color;
 
 	object = rt->object;
 	// sphere = (t_sphere *)object->object;
+	for (int i = 0; i < 10; i++)
+	{
+		for (int k = 0; k < 10; k++)
+			my_mlx_pixel_put(&rt->img, x + i, y + k, 0x00FF0000);
+	}
 	while (object)
 	{
 		if (check_collision(object, x, y))
 		{
-			color = set_color(x, y, object, rt);
-			my_mlx_pixel_put(&rt->img, x, y, create_trgb(0, (int)color.r, (int)color.g, (int)color.b));
+			color = create_trgb(set_color(x, y, object, rt));
+			printf("Setting pixel at (%d, %d) with color: %d\n", x, y, color);
+			my_mlx_pixel_put(&rt->img, x, y, color);
 			return;
 		}
 		object = object->next;
@@ -182,26 +235,31 @@ void	init_rays(t_rt *rt, int width, int height)
 	}
 }
 
+void	debug()
+{
+	printf("Into the debug function\n");
+}
+
 void ft_add_back(t_object **list, t_object *new, int type)
 {
 	t_object *temp;
 
-	printf("Type: %d\n", type);
 	if (new == NULL)
 		return;
+	new->type = type;
 	if (*list == NULL)
 	{
 		*list = new;
-		(*list)->type = type;
 		new->next = NULL;
-		return;
 	}
-	temp = *list;
-	while (temp->next != NULL)
-		temp = temp->next;
-	temp->next = new;
-	temp->type = type;
-	new->next = NULL;
+	else
+	{
+		temp = *list;
+		while (temp->next != NULL)
+			temp = temp->next;
+		temp->next = new;
+		new->next = NULL;
+	}
 }
 
 void	show_sphere(t_sphere *sphere)
@@ -271,7 +329,7 @@ void	list_objects(t_rt *rt)
 void	render(t_rt *rt, int width, int height)
 {
 	mlx_clear_window(rt->mlx, rt->win);
-//	list_objects(rt);
+	list_objects(rt);
 	init_rays(rt, width, height);
 	printf("Rendering...\n");
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
