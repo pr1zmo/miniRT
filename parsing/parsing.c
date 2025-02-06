@@ -183,11 +183,10 @@ int	parse_light(t_rt *rt, char *line)
 	return (0);
 }
 
-void	parsing_error(t_rt *rt, char *msg)
+void	parsing_error(char *msg)
 {
 	ft_putstr_fd("Error: ", 2);
 	ft_putendl_fd(msg, 2);
-	destroy(rt);
 }
 
 int	valid_line(char *arg)
@@ -213,22 +212,21 @@ int	parse(t_rt *rt)
 			break;
 		first_arg = ft_substr(line, 0, ft_strchr(line, ' ') - line);
 		if (!valid_line(first_arg))
-			return (free(line), free(first_arg), parsing_error(rt, "INVALID LINE"), 1);
+			return (free(line), free(first_arg), parsing_error("INVALID LINE"), 1);
 		if (!ft_strncmp(first_arg, "A", 0) && !parse_ambient(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "AMBIENT"), 1);
+			return (free(line), free(first_arg), parsing_error("AMBIENT"), 1);
 		if (!ft_strncmp(first_arg, "C", 0) && !parse_camera(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "CAMERA"), 1);
+			return (free(line), free(first_arg), parsing_error("CAMERA"), 1);
 		if (!ft_strncmp(first_arg, "L", 0) && !parse_light(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "LIGHT"), 1);
+			return (free(line), free(first_arg), parsing_error("LIGHT"), 1);
 		if (!ft_strncmp(first_arg, "sp", 0) && !parse_sphere(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "SPHERE"), 1);
+			return (free(line), free(first_arg), parsing_error("SPHERE"), 1);
 		if (!ft_strncmp(first_arg, "pl", 0) && !parse_plane(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "PLANE"), 1);
+			return (free(line), free(first_arg), parsing_error("PLANE"), 1);
 		if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
-			return (free(line), free(first_arg), parsing_error(rt, "CYLINDER"), 1);
+			return (free(line), free(first_arg), parsing_error("CYLINDER"), 1);
 		free(line);
 		free(first_arg);
 	}
-	printf("OK\n");
 	return (0);
 }

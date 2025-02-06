@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/01/25 14:25:43 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/06 16:56:22 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,10 @@
 #define A 97
 #define S 115
 #define D 100
-#define WIDTH 1360
-#define HEIGHT 800
+// #define WIDTH 1360
+// #define HEIGHT 800
+#define WIDTH 800
+#define HEIGHT 600
 
 typedef struct s_object t_object;
 
@@ -140,17 +142,16 @@ typedef struct s_rt
 	t_object	*object;
 }	t_rt;
 
-/*
 unsigned int	random_int(int state);
 void			my_mlx_pixel_put(t_img *data, int x, int y, int color);
-int				check_collision(t_object *object, int x, int y);
-void			check_hit(t_rt *rt, int x, int y);
+// int				check_collision(t_object *object, int x, int y);
+// void			check_hit(t_rt *rt, int x, int y);
 void			init_rays(t_rt *rt, int width, int height);
-void			init(t_rt *rt, int width, int height);
+// void			init(t_rt *rt, int width, int height);
 void			render(t_rt *rt, int width, int height);
 int				key_hook(int keycode, t_rt *rt);
 int				is_hit(t_rt *rt, int x, int y);
-void			init_scene(t_rt *rt);*/
+void			init_scene(t_rt *rt);
 void			ft_add_back(t_object **list, t_object *new, int type);
 int				check_file(t_rt *rt);
 void			list_objects(t_rt *rt);
@@ -164,7 +165,7 @@ int				parse(t_rt *rt);
 double			atoi_double(char *str);
 void			free_array(char *arr[]);
 int				array_length(char **arr);
-void			parsing_error(t_rt *rt, char *msg);
+void			parsing_error(char *msg);
 int				is_float(const char *c);
 int				check_range(char *line, int count, const int range[2]);
 void			set_direction(char *line, t_vector *directions);
@@ -186,3 +187,12 @@ void			show_plane(t_object *object);
 void			show_cylinder(t_object *object);
 void			list_objects(t_rt *rt);
 
+//vectors
+t_vector		vector_subtract(t_vector a, t_vector b);
+t_vector		vector_add(t_vector a, t_vector b);
+t_vector		vector_scale(t_vector v, double scale);
+double			vector_dot(t_vector a, t_vector b);
+t_vector		vector_normalize(t_vector v);
+
+//ray tracer
+void			r_trace(t_rt *rt, int x, int y);

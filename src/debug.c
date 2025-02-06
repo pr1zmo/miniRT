@@ -3,7 +3,6 @@
 void	show_sphere(t_sphere *sphere)
 {
 	printf("Sphere: %p\n", sphere);
-	printf("Into the sphere\n");
 	printf("Sphere: position=(%.2f, %.2f, %.2f)\n\tdiameter=%.2f\n\tcolor=(%.2f, %.2f, %.2f)\n",
 		sphere->position.x, sphere->position.y, sphere->position.z,
 		sphere->diameter, sphere->color.r, sphere->color.g, sphere->color.b);
