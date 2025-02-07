@@ -22,15 +22,26 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 	}
 }
 
+void	show_light(t_rt *rt)
+{
+	for (int i = 0; i < HEIGHT; i++)
+	{
+		for (int j = 0; j < WIDTH; j++)
+		{
+			if (i == rt->light.position.x || j == rt->light.position.y)
+				my_mlx_pixel_put(&rt->img, j, i, 0xffffff);
+		}
+	}
+}
+
 void	init_rays(t_rt *rt, int width, int height)
 {
+	show_light(rt);
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
 		{
 			r_trace(rt, i, j);
-			if (i == rt->light.position.x || j == rt->light.position.y)
-				my_mlx_pixel_put(&rt->img, j, i, 0xffffff);
 		}
 	}
 }
@@ -82,22 +93,6 @@ int	key_hook(int keycode, t_rt *rt)
 	return (0);
 }
 
-int	is_hit(t_rt *rt, int x, int y)
-{
-	(void)rt;
-	int	r;
-	int	x1;
-	int	y1;
-
-	r = 100;
-	x1 = WIDTH / 2;
-	y1= HEIGHT / 2;
-
-	if ((x - x1) * (x - x1) + (y - y1) * (y - y1) <= r * r)
-		return (1);
-	return (0);
-}
-
 int main(int ac, char **av)
 {
 	t_rt	*rt;
@@ -123,6 +118,7 @@ int main(int ac, char **av)
 	rt->object_count = 0;
 	render(rt, WIDTH, HEIGHT);
 	mlx_key_hook(rt->win, key_hook, rt);
+	// mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);
 	mlx_loop(rt->mlx);
 	return (0);

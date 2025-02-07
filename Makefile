@@ -1,11 +1,11 @@
 NAME		=	miniRT
 SRC_DIR		=	src
 PARSE_DIR	=	parsing
-SRC_FILES	=	main.c free.c debug.c raytracer.c vectors.c
+SRC_FILES	=	main.c free.c debug.c raytracer.c vectors.c events/mouse.c
 PARSE_FILES	=	file.c init.c parsing.c atoi_double.c parsing_utils.c \
 			set_objects.c parse_objects.c
 FILES		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES)) \
-				$(addprefix $(PARSE_DIR)/, $(PARSE_FILES))
+			$(addprefix $(PARSE_DIR)/, $(PARSE_FILES))
 OBJ			=	$(FILES:.c=.o)
 FLAGS		=	-Wall -Wextra -Werror
 ASAN		=	-g3 -pg -fsanitize=address

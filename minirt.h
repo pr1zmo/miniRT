@@ -150,7 +150,6 @@ void			init_rays(t_rt *rt, int width, int height);
 // void			init(t_rt *rt, int width, int height);
 void			render(t_rt *rt, int width, int height);
 int				key_hook(int keycode, t_rt *rt);
-int				is_hit(t_rt *rt, int x, int y);
 void			init_scene(t_rt *rt);
 void			ft_add_back(t_object **list, t_object *new, int type);
 int				check_file(t_rt *rt);
@@ -196,3 +195,6 @@ t_vector		vector_normalize(t_vector v);
 
 //ray tracer
 void			r_trace(t_rt *rt, int x, int y);
+
+// events
+int				handle_mouse_movements(int x, int y, t_rt *rt);
