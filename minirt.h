@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/06 16:56:22 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/10 22:59:44 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,10 @@
 // #define WIDTH 1360
 // #define HEIGHT 800
 #define WIDTH 800
-#define HEIGHT 600
+#define aspect_ratio = 16.0 / 9.0;
+
+// Calculate the image height, and ensure that it's at least 1.
+#define HEIGHT (int)(WIDTH / (16.0 / 9.0))
 
 typedef struct s_object t_object;
 
@@ -53,6 +56,14 @@ typedef struct s_vector
 	double	y;
 	double	z;
 }	t_vector;
+
+typedef struct s_hit_info
+{
+	int			did_hit;
+	double		dist;
+	t_vector	hit_point;
+	t_vector	normal;
+}	t_hit_info;
 
 typedef struct s_color
 {
@@ -198,3 +209,35 @@ void			r_trace(t_rt *rt, int x, int y);
 
 // events
 int				handle_mouse_movements(int x, int y, t_rt *rt);
+
+// int check_sphere(t_rt *rt, int x, int y)
+// {
+// 	t_sphere *sphere;
+// 	double r, a, b, c, discriminant;
+// 	t_vector d, sub;
+// 	t_vector Q = {0, 0, 0}; // Ray origin at (0,0,0)
+// 	t_vector curr = {x, y, 1}; // Current pixel location in 3D
+//
+// 	// Get sphere object
+// 	sphere = (t_sphere *)rt->object;
+// 	r = sphere->diameter / 2;
+//
+// 	// Compute ray direction d (from camera to pixel)
+// 	d = vector_subtract(curr, Q);
+// 	d = vector_normalize(d); // Ensure d is a unit vector
+//
+// 	// Compute coefficients for quadratic equation
+// 	sub = vector_subtract(Q, sphere->position);
+// 	a = vector_dot(d, d);
+// 	b = 2 * vector_dot(d, sub);
+// 	if (vector_dot(sub, sub) < pow(r, 2))
+// 		return (1);
+// 	c = vector_dot(sub, sub) - (r * r);
+// 	// Compute discriminant
+// 	discriminant = (b * b) - (4 * a * c);
+//
+// 	// Check if ray intersects the sphere
+// 	if (discriminant < 0)
+// 		return (0); // No intersection
+// 	return (0); // Intersection detected
+// }

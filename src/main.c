@@ -36,12 +36,19 @@ void	show_light(t_rt *rt)
 
 void	init_rays(t_rt *rt, int width, int height)
 {
+	// char	*progress;
+
 	show_light(rt);
 	for (int i = 0; i < height; i++)
 	{
+		// char *temp = ft_strdup("progress: ");
+		// progress = ft_strjoin(temp, ft_itoa(i));
+		// mlx_string_put(rt->mlx, rt->win, WIDTH / 2, HEIGHT / 2, 0xffffff, progress);
+		// free(progress);
+		// free(temp);
 		for (int j = 0; j < width; j++)
 		{
-			r_trace(rt, i, j);
+			r_trace(rt, j, i);
 		}
 	}
 }
@@ -97,7 +104,7 @@ int main(int ac, char **av)
 {
 	t_rt	*rt;
 
-	global_fd = open("logs", O_CREAT | O_RDWR | O_TRUNC);
+	// global_fd = open("logs", O_CREAT | O_RDWR | O_TRUNC);
 	if (ac != 2)
 	{
 		ft_putstr_fd("Error: invalid number of arguments\n", 2);
