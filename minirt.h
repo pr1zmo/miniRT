@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #define C 99
 #define ESCAPE 65307
@@ -34,6 +35,7 @@
 #define D 100
 // #define WIDTH 1360
 // #define HEIGHT 800
+#define BOUNCES 3
 #define WIDTH 800
 #define aspect_ratio = 16.0 / 9.0;
 
@@ -56,14 +58,6 @@ typedef struct s_vector
 	double	y;
 	double	z;
 }	t_vector;
-
-typedef struct s_hit_info
-{
-	int			did_hit;
-	double		dist;
-	t_vector	hit_point;
-	t_vector	normal;
-}	t_hit_info;
 
 typedef struct s_color
 {
@@ -132,12 +126,31 @@ typedef struct s_cylinder
 	t_color		color;
 }	t_cylinder;
 
+typedef struct s_object_interface t_object_interface;
+
 typedef struct s_object
 {
-	t_type		type;
-	void		*object;
-	t_object	*next;
+	t_type				type;
+	void				*object;
+	t_object_interface	*interface;
+	t_object			*next;
 }	t_object;
+
+typedef struct s_hit_info
+{
+	int			did_hit;
+	double		dist;
+	t_vector	hit_point;
+	t_vector	normal;
+	t_color		color;
+	t_object	closest_object;
+}	t_hit_info;
+
+typedef struct s_object_interface
+{
+	int	(*check_hit)(t_object *object, int x, int y);
+	int	(*set_color)(t_object *object, int x, int y);
+}	t_object_interface;
 
 typedef struct s_rt
 {

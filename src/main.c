@@ -77,8 +77,14 @@ void ft_add_back(t_object **list, t_object *new, int type)
 
 void	render(t_rt *rt, int width, int height)
 {
+	pthread_t	thread;
+
 	mlx_clear_window(rt->mlx, rt->win);
 	rt->light.color = (t_color){255, 255, 255};
+	for (int i = 0; i < 20; i++)
+	{
+		pthread_create()
+	}
 	init_rays(rt, width, height);
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
 }

@@ -68,83 +68,12 @@ t_vector scale_vector(double s, t_vector v)
 // 	return (int_color);
 // }
 
-int	rgb_to_hex(t_color rgb)
-{
-	return ((int)rgb.r << 16 | (int)rgb.g << 8 | (int)rgb.b);
-}
-
-int	set_sphere_color(t_rt *rt, t_sphere *sphere, int x, int y)
+int intersect(t_rt *rt, int x, int y)
 {
 	(void)rt;
 	(void)x;
 	(void)y;
-	(void)sphere;
-	t_color	color;
-	int		hex;
-
-	double a = scale(x, 0, 1, 0, HEIGHT);
-	double b = scale(y, 0, 1, 0, WIDTH);
-	double gradient = (a + b) / 2;
-	int red = (int)(0xff * gradient);
-	int green = (int)(0xff * (1 - gradient));
-	int blue = (int)(0xff * gradient);
-	// color = sphere->color;
-	color.r = red;
-	color.b = blue;
-	color.g = green;
-	hex = rgb_to_hex(color);
-	return (hex);
-}
-
-int		check_plane(t_object *object, int x, int y)
-{
-	double	a, b, c;
-	t_plane	*plane = (t_plane *)object;
-	//
-	a = plane->position.x;
-	b = plane->position.y;
-	c = plane->position.z;
-	if (a * x + b * y + c != 0)
-		return (1);
-	return (0);
-}
-
-int	set_plane_color(t_rt *rt, t_plane *plane, int x, int y)
-{
-	(void)rt;
-	(void)plane;
-	(void)x;
-	(void)y;
-
-	return (rgb_to_hex(plane->color));
-}
-
-int	intersect(t_rt *rt, int x, int y)
-{
-	t_object	*temp;
-	t_hit_info	hitInfo;
-
-	temp = rt->object;
-	while (temp)
-	{
-		hitInfo.dist = -1;
-		if (check_sphere(rt, x, y))
-		{
-			hitInfo.dist = 0;
-		}
-		/*if (check_sphere(rt, x, y)) {
-			return (set_sphere_color(rt, (t_sphere *)temp->object, x, y));
-		}
-		if (check_plane(temp->object, x, y)) {
-			return (set_plane_color(rt, (t_plane *)temp->object, x, y));
-		}
-		if (check_cylinder(temp->object, x, y))
-		{
-			return (set_color(temp->object));
-		}*/
-		temp = temp->next;
-	}
-	return (-1);
+	return (0xf93955);
 }
 
 void	r_trace(t_rt *rt, int x, int y)
