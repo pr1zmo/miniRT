@@ -68,12 +68,23 @@ t_vector scale_vector(double s, t_vector v)
 // 	return (int_color);
 // }
 
-int intersect(t_rt *rt, int x, int y)
+int	rgb_to_hex(t_color color)
 {
+	int	hex;
+
+	hex = ((int)color.r << 16) | ((int)color.g << 8) | (int)color.b;
+	return (hex);
+}
+
+int	intersect(t_rt *rt, int x, int y)
+{
+	t_sphere	*sphere = (t_sphere *)rt->object->object;
 	(void)rt;
 	(void)x;
 	(void)y;
-	return (0xf93955);
+
+	
+	return (-1);
 }
 
 void	r_trace(t_rt *rt, int x, int y)
@@ -82,7 +93,7 @@ void	r_trace(t_rt *rt, int x, int y)
 	// t_ray	ray;
 
 	color = intersect(rt, x, y);
-	if (color > 0)
+	if (color >= 0)
 		my_mlx_pixel_put(&rt->img, x, y, color);
 	// else
 	// {
