@@ -34,6 +34,12 @@ void	show_light(t_rt *rt)
 	}
 }
 
+void	build_rays(t_rt *rt, t_ray *ray, double x, double y)
+{
+	ray->direction = rt->camera.orientation;
+	ray->origin = rt->camera.position;
+}
+
 void	*init_rays(void	*thread_data)
 {
 	// char	*progress;
@@ -49,6 +55,7 @@ void	*init_rays(void	*thread_data)
 		// free(temp);
 		for (int j = 0; j < rt->width; j++)
 		{
+			build_rays(rt, rt->ray, i, j);
 			r_trace(rt, j, i);
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/10 22:59:44 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/17 09:14:22 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ typedef struct s_hit_info
 	t_vector	hit_point;
 	t_vector	normal;
 	t_color		color;
-	t_object	closest_object;
+	t_object	*closest_object;
 }	t_hit_info;
 
 typedef struct s_object_interface
@@ -161,6 +161,7 @@ typedef struct s_rt
 	char		*file;
 	int			height;
 	int			width;
+	t_ray		*ray;
 	t_ambient	ambient;
 	t_camera	camera;
 	t_img		img;
