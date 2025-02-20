@@ -34,18 +34,18 @@ void	show_light(t_rt *rt)
 	}
 }
 
-void	build_rays(t_rt *rt, t_ray *ray, double x, double y)
-{
-	ray->direction = rt->camera.orientation;
-	ray->origin = rt->camera.position;
-}
-
 void	*init_rays(void	*thread_data)
 {
 	// char	*progress;
 	t_rt	*rt = (t_rt *)thread_data;
 
 	show_light(rt);
+	rt->ray = (t_ray *)malloc(sizeof(t_ray));
+	if (rt->ray == NULL)
+	{
+		perror("Failed to allocate memory for ray");
+		exit(EXIT_FAILURE);
+	}
 	for (int i = 0; i < rt->height; i++)
 	{
 		// char *temp = ft_strdup("progress: ");
@@ -55,7 +55,8 @@ void	*init_rays(void	*thread_data)
 		// free(temp);
 		for (int j = 0; j < rt->width; j++)
 		{
-			build_rays(rt, rt->ray, i, j);
+			// generate_ray(rt, i, j);
+			// get_ray(rt, rt->ray, i, j);
 			r_trace(rt, j, i);
 		}
 	}
@@ -114,6 +115,14 @@ int	key_hook(int keycode, t_rt *rt)
 		rt->camera.position.y += 10;
 	render(rt);
 	return (0);
+}
+
+int get_width(void) {
+	Display* d = XOpenDisplay(NULL);
+	Screen*  s = DefaultScreenOfDisplay(d);
+	int width = s->width;
+	XCloseDisplay(d);
+	return (width / 4);
 }
 
 int main(int ac, char **av)

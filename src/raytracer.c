@@ -3,14 +3,12 @@
 int	k = 0;
 int	z = 0;
 
-int	check_sphere(t_rt *rt, int x, int y)
+int	check_sphere(t_sphere *sphere, int x, int y)
 {
-	t_sphere	*sphere;
 	double		r, discriminant, a;
 	t_vector	sub;
 	t_vector	curr;
 
-	sphere = (t_sphere *)rt->object->object;
 	curr.x = x;
 	curr.y = y;
 	curr.z = 1;
@@ -68,42 +66,118 @@ t_vector scale_vector(double s, t_vector v)
 // 	return (int_color);
 // }
 
-int	rgb_to_hex(t_color color)
-{
-	int	hex;
+// Compute the direction of a ray from the camera through a pixel
+// void	get_ray(t_rt *rt, t_ray *ray, int x, int y)
+// {
+// 	double aspect_ratio = (double)rt->width / (double)rt->height;
+// 	double fov_adjustment = tan(rt->camera.fov / 2 * M_PI / 180);
 
-	hex = ((int)color.r << 16) | ((int)color.g << 8) | (int)color.b;
-	return (hex);
+// 	double px = (2 * ((x + 0.5) / rt->width) - 1) * aspect_ratio * fov_adjustment;
+// 	double py = (1 - 2 * ((y + 0.5) / rt->height)) * fov_adjustment;
+	
+// 	t_vector ray_dir = vector_normalize((t_vector){px, py, -1});
+// 	ray->direction = ray_dir;
+// 	ray->origin = rt->camera.position;
+// }
+
+void	get_ray(t_rt *rt, t_ray *ray, int x, int y)
+{
+	double aspect_ratio = (double)rt->width / (double)rt->height;
+	double fov_adjustment = tan(rt->camera.fov / 2 * M_PI / 180);
+
+	double px = (2 * ((x + 0.5) / rt->width) - 1) * aspect_ratio * fov_adjustment;
+	double py = (1 - 2 * ((y + 0.5) / rt->height)) * fov_adjustment;
+	
+	t_vector ray_dir = vector_normalize((t_vector){px, py, -1});
+	ray->direction = ray_dir;
+	ray->origin = rt->camera.position;
 }
 
-int	intersect(t_rt *rt, int x, int y)
+// Sphere-ray intersection
+int sphere_intersect(t_sphere *sphere, t_ray *ray, double *t)
 {
-	t_sphere	*sphere = (t_sphere *)rt->object->object;
-	(void)rt;
-	(void)x;
-	(void)y;
-
+	t_vector oc = vector_subtract(ray->origin, sphere->position);
+	double a = vector_dot(ray->direction, ray->direction);
+	double b = 2 * vector_dot(oc, ray->direction);
+	double c = vector_dot(oc, oc) - (sphere->diameter / 2) * (sphere->diameter / 2);
+	double discriminant = b * b - 4 * a * c;
 	
+	if (discriminant < 0)
+		return (0);
+	
+	double t0 = (-b - sqrt(discriminant)) / (2 * a);
+	double t1 = (-b + sqrt(discriminant)) / (2 * a);
+	
+	*t = (t0 > 0) ? t0 : t1;
+	return (*t > 0);
+}
+
+// Compute shading using Lambert's law
+int compute_lighting(t_rt *rt, t_vector point, t_vector normal, t_sphere *sphere)
+{
+	t_vector light_dir = vector_normalize(vector_subtract(rt->light.position, point));
+	double intensity = fmax(0, vector_dot(normal, light_dir));
+	
+	t_color color = sphere->color;
+	color.r *= intensity;
+	color.g *= intensity;
+	color.b *= intensity;
+	
+	return ((int)color.r << 16 | (int)color.g << 8 | (int)color.b);
+}
+
+void	debug(t_ray *ray)
+{
+	printf("ray origin: %f %f %f\n", ray->origin.x, ray->origin.y, ray->origin.z);
+	printf("ray direction: %f %f %f\n", ray->direction.x, ray->direction.y, ray->direction.z);
+}
+
+// Check for intersection and return pixel color
+// int intersect(t_rt *rt, int x, int y)
+// {
+// 	t_sphere	*sphere = (t_sphere *)rt->object->object;
+// 	// debug(rt->ray);
+// 	double	t;
+// 	(void)x;
+// 	(void)y;
+
+// 	if (sphere_intersect(sphere, rt->ray, &t))
+// 	{
+// 		t_vector hit_point = {rt->ray->origin.x + t * rt->ray->direction.x, 
+// 							rt->ray->origin.y + t * rt->ray->direction.y, 
+// 							rt->ray->origin.z + t * rt->ray->direction.z};
+// 		t_vector normal = vector_normalize(vector_subtract(hit_point, sphere->position));
+// 		return compute_lighting(rt, hit_point, normal, sphere);
+// 	}
+// 	return (-1);
+// }
+
+int intersect(t_rt *rt, int x, int y)
+{
+	t_vector	hit_point;
+	t_vector	normal;
+	t_sphere	*sphere;
+	double		t;
+	
+	sphere = (t_sphere *)rt->object->object;
+	get_ray(rt, rt->ray, x, y);
+	if (sphere_intersect(sphere, rt->ray, &t))
+	{
+		hit_point.x = rt->ray->origin.x + t * rt->ray->direction.x;
+		hit_point.y = rt->ray->origin.y + t * rt->ray->direction.y;
+		hit_point.z = rt->ray->origin.z + t * rt->ray->direction.z;
+		normal = vector_normalize(vector_subtract(hit_point, sphere->position));
+		return (compute_lighting(rt, hit_point, normal, sphere));
+	}
 	return (-1);
 }
 
-void	r_trace(t_rt *rt, int x, int y)
+// Cast ray and set pixel color
+void r_trace(t_rt *rt, int x, int y)
 {
-	int		color;
-	// t_ray	ray;
-
+	int color;
+	
 	color = intersect(rt, x, y);
 	if (color >= 0)
 		my_mlx_pixel_put(&rt->img, x, y, color);
-	// else
-	// {
-		// double a = scale(x, 0, 1, 0, HEIGHT);
-		// double b = scale(y, 0, 1, 0, WIDTH);
-		// double gradient = (a + b) / 2;
-		// int red = (int)(0xff * gradient);
-		// int green = (int)(0xff * (1 - gradient));
-		// int blue = (int)(0xff * gradient);
-		// int background_color = (red << 16) | (green << 8) | blue;
-		// my_mlx_pixel_put(&rt->img, y, x, background_color);
-	// }
 }

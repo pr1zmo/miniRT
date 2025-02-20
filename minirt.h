@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/17 09:14:22 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/20 18:48:53 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <X11/Xlib.h>
 
 #define C 99
 #define ESCAPE 65307
@@ -33,11 +34,15 @@
 #define A 97
 #define S 115
 #define D 100
-// #define WIDTH 1360
-// #define HEIGHT 800
-#define BOUNCES 3
 #define WIDTH 800
-#define aspect_ratio = 16.0 / 9.0;
+#define BOUNCES 3
+
+int	get_width(void);
+
+#define HEIGHT (int)(WIDTH / (16.0 / 9.0))
+// double viewport_height = 2.0 * tan(fov / 2.0);
+// double viewport_width = viewport_height * ((double)WIDTH / HEIGHT);
+
 
 // Calculate the image height, and ensure that it's at least 1.
 #define HEIGHT (int)(WIDTH / (16.0 / 9.0))
@@ -177,7 +182,6 @@ void*			init_rays(void *thread_data);
 // void			init(t_rt *rt, int width, int height);
 void			render(t_rt *rt);
 int				key_hook(int keycode, t_rt *rt);
-void			init_scene(t_rt *rt);
 void			ft_add_back(t_object **list, t_object *new, int type);
 int				check_file(t_rt *rt);
 void			list_objects(t_rt *rt);
@@ -225,6 +229,11 @@ void			r_trace(t_rt *rt, int x, int y);
 
 // events
 int				handle_mouse_movements(int x, int y, t_rt *rt);
+
+// scene
+
+void			generate_ray(t_rt *rt, int x, int y);
+// void			get_ray(t_rt *rt, t_ray *ray, int x, int y);
 
 // int check_sphere(t_rt *rt, int x, int y)
 // {

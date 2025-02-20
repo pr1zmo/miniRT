@@ -49,6 +49,8 @@ int	destroy(t_rt *rt)
 		free(rt->mlx);
 	if (rt->object)
 		free_objects(rt->object);
+	if (rt->ray)
+		free(rt->ray);
 	if (rt->file_fd > 0)
 		close(rt->file_fd);
 	free(rt);
