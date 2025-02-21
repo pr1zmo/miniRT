@@ -1,6 +1,6 @@
 #include "../minirt.h"
 
-int global_fd;
+int	global_fd;
 
 unsigned int random_int(int state)
 {

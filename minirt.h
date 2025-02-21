@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/20 18:48:53 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/21 13:17:55 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 #define BOUNCES 3
 
 int	get_width(void);
+extern int global_fd;
 
 #define HEIGHT (int)(WIDTH / (16.0 / 9.0))
 // double viewport_height = 2.0 * tan(fov / 2.0);
@@ -232,7 +233,6 @@ int				handle_mouse_movements(int x, int y, t_rt *rt);
 
 // scene
 
-void			generate_ray(t_rt *rt, int x, int y);
 // void			get_ray(t_rt *rt, t_ray *ray, int x, int y);
 
 // int check_sphere(t_rt *rt, int x, int y)
