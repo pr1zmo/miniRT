@@ -170,7 +170,7 @@ int	parse_light(t_rt *rt, char *line)
 	char	**line_data;
 
 	line_data = ft_split(line, ' ');
-	if (line_data[3])
+	if (line_data[4])
 		return (free_array(line_data), arg_error("light"));
 	if (check_range(line_data[1], 3, NULL)
 		&& check_range(line_data[2], 2, (int[]){0, 1}))
