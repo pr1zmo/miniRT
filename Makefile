@@ -27,6 +27,7 @@ sanitize: clean
 %.o: %.c
 	cc $(FLAGS) $(INCLUDES) -c $< -o $@
 
+.PHONY:
 clean:
 	make -C libft clean
 	rm -f $(OBJ)
@@ -39,5 +40,3 @@ valgrind: all
 	valgrind --leak-check=full --track-origins=yes ./$(NAME) scenes/mandatory.rt
 
 re: fclean all
-
-.PHONY: all clean fclean re sanitize

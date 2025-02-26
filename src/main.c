@@ -40,12 +40,12 @@ void	*init_rays(void	*thread_data)
 	t_rt	*rt = (t_rt *)thread_data;
 
 	show_light(rt);
-	rt->ray = (t_ray *)malloc(sizeof(t_ray));
-	if (rt->ray == NULL)
-	{
-		perror("Failed to allocate memory for ray");
-		exit(EXIT_FAILURE);
-	}
+	// rt->ray = (t_ray *)malloc(sizeof(t_ray));
+	// if (rt->ray == NULL)
+	// {
+	// 	perror("Failed to allocate memory for ray");
+	// 	exit(EXIT_FAILURE);
+	// }
 	for (int i = 0; i < rt->height; i++)
 	{
 		// char *temp = ft_strdup("progress: ");

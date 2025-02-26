@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/25 12:52:10 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/02/26 15:05:29 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,8 @@ typedef struct s_object_interface t_object_interface;
 typedef struct s_object
 {
 	t_type				type;
+	t_vector			position;
+	t_color				color;
 	void				*object;
 	t_object_interface	*interface;
 	t_object			*next;
@@ -140,7 +142,7 @@ typedef struct s_object
 
 typedef struct s_hit_info
 {
-	int			hit_count;
+	int			hit;
 	double		dist;
 	t_vector	hit_point;
 	t_vector	normal;
@@ -215,12 +217,12 @@ void			show_cylinder(t_object *object);
 void			list_objects(t_rt *rt);
 
 //vectors
-t_vector		vector_subtract(t_vector a, t_vector b);
-t_vector		vector_add(t_vector a, t_vector b);
-t_vector		vector_scale(t_vector v, double scale);
-double			vector_dot(t_vector a, t_vector b);
-t_vector		vector_normalize(t_vector v);
-t_vector		vector_cross(t_vector a, t_vector b);
+t_vector		vec_sub(t_vector a, t_vector b);
+t_vector		vec_add(t_vector a, t_vector b);
+t_vector		vec_scale(t_vector v, double scale);
+double			vec_dot(t_vector a, t_vector b);
+t_vector		vec_norm(t_vector v);
+t_vector		vec_cro(t_vector a, t_vector b);
 t_vector		scale_vector(double s, t_vector v);
 
 //ray tracer
@@ -246,11 +248,11 @@ t_ray			get_ray(t_rt *rt, int x, int y);
 // 	r = sphere->diameter / 2;
 //
 // 	// Compute ray direction d (from camera to pixel)
-// 	d = vector_subtract(curr, Q);
+// 	d = vec_sub(curr, Q);
 // 	d = vector_normalize(d); // Ensure d is a unit vector
 //
 // 	// Compute coefficients for quadratic equation
-// 	sub = vector_subtract(Q, sphere->position);
+// 	sub = vec_sub(Q, sphere->position);
 // 	a = vector_dot(d, d);
 // 	b = 2 * vector_dot(d, sub);
 // 	if (vector_dot(sub, sub) < pow(r, 2))
