@@ -39,7 +39,7 @@ void	*init_rays(void	*thread_data)
 	// char	*progress;
 	t_rt	*rt = (t_rt *)thread_data;
 
-	show_light(rt);
+	rt->rendering = 1;
 	// rt->ray = (t_ray *)malloc(sizeof(t_ray));
 	// if (rt->ray == NULL)
 	// {
@@ -55,11 +55,11 @@ void	*init_rays(void	*thread_data)
 		// free(temp);
 		for (int j = 0; j < rt->width; j++)
 		{
-			// generate_ray(rt, i, j);
-			// get_ray(rt, rt->ray, i, j);
 			r_trace(rt, j, i);
 		}
 	}
+	show_light(rt);
+	rt->rendering = 0;
 	return (NULL);
 }
 
@@ -85,34 +85,76 @@ void ft_add_back(t_object **list, t_object *new, int type)
 	}
 }
 
+void	*monitoring(void	*data)
+{
+	t_rt *rt;
+
+	rt = (t_rt *)data;
+	while (rt->rendering)
+		printf("Rending...\n");
+	printf("Finished!\n");
+	return (NULL);
+}
+
 void	render(t_rt *rt)
 {
 	pthread_t	thread[20];
+	pthread_t	monitor;
 
 	mlx_clear_window(rt->mlx, rt->win);
-	rt->light.color = (t_color){255, 255, 255};
+	pthread_create(&monitor, NULL, monitoring, rt);
 	for (int i = 0; i < 20; i++) {
 		pthread_create(&thread[i], NULL, init_rays, rt);
 	}
 	for (int k = 0; k < 20; k++) {
 		pthread_join(thread[k], NULL);
 	}
+	pthread_join(monitor, NULL);
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
+	rt->rendering = 0;
+}
+
+void move_sphere(t_rt *rt, int keycode)
+{
+	t_object *temp;
+
+	temp = rt->object;
+	while (temp)
+	{
+		if (temp->type == SPHERE)
+		{
+			t_sphere *sphere = (t_sphere *)temp->object;
+			if (keycode == LEFT_ARROW)
+				sphere->position.x -= 10;
+			else if (keycode == RIGHT_ARROW)
+				sphere->position.x += 10;
+			else if (keycode == UP_ARROW)
+				sphere->position.y -= 10;
+			else if (keycode == DOWN_ARROW)
+				sphere->position.y += 10;
+		}
+		temp = temp->next;
+	}
 }
 
 int	key_hook(int keycode, t_rt *rt)
 {
+	move_sphere(rt, keycode);
+	if (rt->rendering)
+		return (0);
 	printf("keycode: %d\n", keycode);
 	if (keycode == 65307)
 		destroy(rt);
-	else if (keycode == LEFT_ARROW)
-		rt->camera.position.x -= 10;
-	else if (keycode == RIGHT_ARROW)
-		rt->camera.position.x += 10;
-	else if (keycode == UP_ARROW)
-		rt->camera.position.y -= 10;
-	else if (keycode == DOWN_ARROW)
-		rt->camera.position.y += 10;
+	// else if (keycode == LEFT_ARROW)
+	// 	rt->camera.position.x -= 10;
+	// else if (keycode == RIGHT_ARROW)
+	// 	rt->camera.position.x += 10;
+	// else if (keycode == UP_ARROW)
+	// 	rt->camera.position.y -= 10;
+	// else if (keycode == DOWN_ARROW)
+	// 	rt->camera.position.y += 10;
+	else if (keycode == SPACE)
+		rt->anti_aliasing = !rt->anti_aliasing;
 	render(rt);
 	return (0);
 }
@@ -123,6 +165,43 @@ int get_width(void) {
 	int width = s->width;
 	XCloseDisplay(d);
 	return (width / 4);
+}
+
+int get_current_color(t_rt *rt, int x, int y)
+{
+	char *pxl;
+	int color;
+
+	pxl = rt->img.addr + (y * rt->img.line_length + x * (rt->img.bits_per_pixel / 8));
+	color = *(unsigned int *)pxl;
+	return (color);
+}
+
+int	handle_mouse_movements(int x, int y, t_rt *rt)
+{
+	int	color;
+	if (!rt || rt->rendering)
+		return (0);
+	if (rt->rendered)
+	{
+		color = get_current_color(rt, x, y);
+		printf("color: %d\n", color);
+	}
+	return (0);
+}
+
+void	init_rt(t_rt *rt)
+{
+	rt->rendered = 0;
+	rt->rendering = 0;
+	rt->height = HEIGHT;
+	rt->width = WIDTH;
+	rt->mlx = mlx_init();
+	rt->win = mlx_new_window(rt->mlx, WIDTH, HEIGHT, "miniRT");
+	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
+	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
+			&rt->img.line_length, &rt->img.endian);
+	rt->object_count = 0;
 }
 
 int main(int ac, char **av)
@@ -142,17 +221,10 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	open_file(rt, av[1]);
-	rt->height = HEIGHT;
-	rt->width = WIDTH;
-	rt->mlx = mlx_init();
-	rt->win = mlx_new_window(rt->mlx, WIDTH, HEIGHT, "miniRT");
-	rt->img.img = mlx_new_image(rt->mlx, WIDTH, HEIGHT);
-	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
-			&rt->img.line_length, &rt->img.endian);
-	rt->object_count = 0;
+	init_rt(rt);
 	render(rt);
 	mlx_key_hook(rt->win, key_hook, rt);
-	// mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
+	mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);
 	mlx_loop(rt->mlx);
 	return (0);

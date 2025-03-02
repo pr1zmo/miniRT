@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/02/26 15:05:29 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:41:57 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 #define A 97
 #define S 115
 #define D 100
+#define SPACE 32
 #define WIDTH 1260
 #define BOUNCES 3
 #define ASPECT_RATIO (16.0 / 9.0)
@@ -45,6 +46,7 @@ extern int global_fd;
 // double viewport_width = viewport_height * ((double)WIDTH / HEIGHT);
 
 typedef struct s_object t_object;
+typedef struct s_light t_light;
 
 typedef enum e_type
 {
@@ -60,6 +62,14 @@ typedef struct s_vector
 	double	y;
 	double	z;
 }	t_vector;
+
+typedef struct s_vec4
+{
+	double x;
+	double y;
+	double z;
+	double w;
+}	t_vec4;
 
 typedef struct s_color
 {
@@ -85,6 +95,7 @@ typedef struct s_light
 	t_vector	position;
 	t_color		color;
 	double		brightness;
+	t_light		*next;
 }	t_light;
 
 typedef struct s_img
@@ -128,17 +139,28 @@ typedef struct s_cylinder
 	t_color		color;
 }	t_cylinder;
 
-typedef struct s_object_interface t_object_interface;
 
 typedef struct s_object
 {
 	t_type				type;
 	t_vector			position;
 	t_color				color;
+	t_vec4				ambient;
+	t_vec4				diffuse;
+	t_vec4				shinieness;
+	t_vec4				specular;
+	t_vec4				emissive;
 	void				*object;
-	t_object_interface	*interface;
 	t_object			*next;
 }	t_object;
+
+/*
+typedef struct s_object {
+    t_type      type;
+    void        *object;
+    t_object    *next;
+} t_object;
+*/
 
 typedef struct s_hit_info
 {
@@ -150,12 +172,6 @@ typedef struct s_hit_info
 	t_object	*closest_object;
 }	t_hit_info;
 
-typedef struct s_object_interface
-{
-	int	(*check_hit)(t_object *object, int x, int y);
-	int	(*set_color)(t_object *object, int x, int y);
-}	t_object_interface;
-
 typedef struct s_rt
 {
 	void		*mlx;
@@ -165,6 +181,9 @@ typedef struct s_rt
 	char		*file;
 	int			height;
 	int			width;
+	int			anti_aliasing;
+	int			rendered;
+	int			rendering;
 	t_ray		*ray;
 	t_ambient	ambient;
 	t_camera	camera;
@@ -227,6 +246,7 @@ t_vector		scale_vector(double s, t_vector v);
 
 //ray tracer
 void			r_trace(t_rt *rt, int x, int y);
+int				intersect(t_rt *rt, int x, int y);
 
 // events
 int				handle_mouse_movements(int x, int y, t_rt *rt);
