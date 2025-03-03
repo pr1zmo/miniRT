@@ -63,14 +63,11 @@ int sphere_intersect(t_object *object, t_ray *ray, int *t)
 	b = 2 * vec_dot(oc, ray->direction);
 	c = vec_dot(oc, oc) - (radius * radius);
 	discriminant = b * b - 4 * a * c;
-
 	if (discriminant < 0)
 		return (0);
-
 	*t = (-b - sqrt(discriminant)) / (2 * a);
 	if (*t < 0)
 		return (0);
-
 	return (1);
 }
 
@@ -123,83 +120,6 @@ t_vector reflect_light(t_vector normal, t_vector light_dir)
     return (reflect_dir);
 }
 
-/*
-#version 300 es
-
-precision mediump float;
-
- RGB material definition.
-struct RGBMaterial {
-    
-    /// Emissive component.
-    vec4 ke;
-    /// Ambient component.
-    vec4 ka;
-    /// Diffuse component.
-    vec4 kd;
-    /// Specular component.
-    vec4 ks;
-    /// Shiness.
-    float sh;
-};
-
- RGB light definition.
- It composed of a direction and a color.
-
-struct DirectionalRGBLight {
-    
-    /// Light direction.
-    vec3 direction;
-    /// Light rgb color.
-    vec4 color;
-};
-
-/// Normal (from vertex shader) interpolated per fragment.
-in vec3 normalInterp;
-/// Vertex position.
-in vec3 vertPos;
-
-/// Final fragment color.
-out vec4 fragmentColor;
-
-/// View position.
-uniform vec3 viewPosition;
-/// Light data.
-uniform DirectionalRGBLight light;
-/// Material data.
-uniform RGBMaterial surfaceMaterial;
-
-void main() {
-    
-    //Calculate light direction and view direction.
-    vec3 lightDirection = normalize(light.direction);
-    vec3 viewDirection = normalize(viewPosition - vertPos);
-    
-    //Cosine theta diffuse lambertian component.
-    float cosTheta = max(0.0, dot(normalInterp, normalize(lightDirection)));
-    
-    vec4 emissive = surfaceMaterial.ke * light.color;
-    vec4 ambient = surfaceMaterial.ka * light.color;
-    vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
-    
-    //Only if light is visible from the surface point.
-    if(cosTheta > 0.0) {
-        
-        //Reflection vector around normal.
-        vec3 reflectionDirection = reflect(-lightDirection, normalInterp);
-        
-        //Diffuse component.
-        diffuse = surfaceMaterial.kd * light.color * cosTheta;
-        
-        //Specular component.
-        specular = surfaceMaterial.ks * light.color * pow(max(0.0, dot(reflectionDirection, viewDirection)), surfaceMaterial.sh);
-    }
-    
-    fragmentColor = emissive + ambient + diffuse + specular;
-}
-*/
-
 t_color	mix_color(t_color c1, float p1, t_color c2, float p2)
 {
 	t_color	dst;
@@ -209,70 +129,6 @@ t_color	mix_color(t_color c1, float p1, t_color c2, float p2)
 	dst.b = c1.b * p1 + c2.b * p2;
 	return (dst);
 }
-
-/*
-import numpy as np
-
-def phong_reflection_point_light(point, normal, light_pos, view_pos, 
-                                 ambient_color, diffuse_color, specular_color, shininess):
-    """
-    Compute the color at a point using the Phong reflection model with a point light source.
-
-    Parameters:
-    - point: The 3D point on the surface (numpy array)
-    - normal: Normal vector at the point (numpy array, normalized)
-    - light_pos: Position of the light source (numpy array)
-    - view_pos: Position of the camera/viewer (numpy array)
-    - ambient_color: Ambient light color (numpy array)
-    - diffuse_color: Diffuse light color (numpy array)
-    - specular_color: Specular light color (numpy array)
-    - shininess: Shininess coefficient for specular reflection
-
-    Returns:
-    - Computed color (numpy array)
-    """
-
-    # Normalize normal
-    normal = normal / np.linalg.norm(normal)
-
-    # Compute light direction (from point to light)
-    light_dir = light_pos - point
-    light_dir = light_dir / np.linalg.norm(light_dir)
-
-    # Compute view direction (from point to camera)
-    view_dir = view_pos - point
-    view_dir = view_dir / np.linalg.norm(view_dir)
-
-    # Ambient component
-    ambient = ambient_color
-
-    # Diffuse component (Lambertian reflection)
-    diff = max(np.dot(normal, light_dir), 0.0)
-    diffuse = diffuse_color * diff
-
-    # Specular component (Phong reflection)
-    reflect_dir = 2 * np.dot(normal, light_dir) * normal - light_dir
-    spec = max(np.dot(view_dir, reflect_dir), 0.0) ** shininess
-    specular = specular_color * spec
-
-    # Final color
-    return ambient + diffuse + specular
-
-# Example usage
-point = np.array([0, 0, 0])    # Surface point at origin
-normal = np.array([0, 0, 1])   # Normal facing up
-light_pos = np.array([1, 1, 1]) # Light source at (1,1,1)
-view_pos = np.array([0, 0, 1])  # Camera at (0,0,1)
-
-ambient_color = np.array([0.1, 0.1, 0.1])  # Low ambient light
-diffuse_color = np.array([0.8, 0.2, 0.2])  # Reddish diffuse light
-specular_color = np.array([1.0, 1.0, 1.0]) # White specular highlight
-shininess = 32  # Higher values = sharper highlights
-
-color = phong_reflection_point_light(point, normal, light_pos, view_pos, 
-                                     ambient_color, diffuse_color, specular_color, shininess)
-print("Resulting Color:", color)
-*/
 
 int	rgb_to_int(t_color color)
 {
@@ -286,29 +142,22 @@ t_color phong_model(t_hit_info hit, t_light light, t_camera camera)
 	double diff_intensity, spec_intensity;
 	double shininess = 32;
 
-	// Normalize the normal
 	hit.normal = vec_norm(hit.normal);
-
-	// Compute light direction (from hit point to light)
 	light_dir = vec_sub(light.position, hit.hit_point);
 	light_dir = vec_norm(light_dir);
 
-	// Compute view direction (from hit point to camera)
 	view_dir = vec_sub(camera.position, hit.hit_point);
 	view_dir = vec_norm(view_dir);
 
-	// Ambient component (global illumination)
 	ambient.r = hit.color.r * light.color.r * 0.1;
 	ambient.g = hit.color.g * light.color.g * 0.1;
 	ambient.b = hit.color.b * light.color.b * 0.1;
 
-	// Diffuse component (Lambertian reflection)
 	diff_intensity = fmax(vec_dot(hit.normal, light_dir), 0.0);
 	diffuse.r = hit.color.r * light.color.r * diff_intensity;
 	diffuse.g = hit.color.g * light.color.g * diff_intensity;
 	diffuse.b = hit.color.b * light.color.b * diff_intensity;
 
-	// Specular component (Phong reflection)
 	reflect_dir = vec_sub(vec_scale(hit.normal, 2 * vec_dot(hit.normal, light_dir)), light_dir);
 	reflect_dir = vec_norm(reflect_dir);
 	spec_intensity = pow(fmax(vec_dot(view_dir, reflect_dir), 0.0), shininess);
@@ -317,12 +166,10 @@ t_color phong_model(t_hit_info hit, t_light light, t_camera camera)
 	specular.g = light.color.g * spec_intensity;
 	specular.b = light.color.b * spec_intensity;
 
-	// Final color = Ambient + Diffuse + Specular
 	final_color.r = ambient.r + diffuse.r + specular.r;
 	final_color.g = ambient.g + diffuse.g + specular.g;
 	final_color.b = ambient.b + diffuse.b + specular.b;
 
-	// Clamp color values to [0,1] range
 	final_color.r = fmin(final_color.r, 1.0);
 	final_color.g = fmin(final_color.g, 1.0);
 	final_color.b = fmin(final_color.b, 1.0);
@@ -330,55 +177,80 @@ t_color phong_model(t_hit_info hit, t_light light, t_camera camera)
 	return final_color;
 }
 
-// int	compute_lighting(t_rt *rt, t_vector point, t_vector normal, t_vector view_dir, t_object *obj)
-// {
-// 	(void)rt;
-// 	(void)point;
-// 	(void)normal;
-// 	(void)view_dir;
-// 	t_color	phong;
-// 	double	ambient;
-// 	double	diffuse;
-// 	double	reflect;
-// 	// double	specular;
-
-// 	ambient = rt->ambient.lighting;
-// 	diffuse = fmax(0.0, vec_dot(normal, vec_norm(vec_sub(rt->light.position, point))));
-// 	reflect = fmax(0.0, vec_dot(view_dir, reflect_light(normal, vec_norm(vec_sub(rt->light.position, point)))));
-// 	double coef = ambient + diffuse + reflect;
-// 	phong.r = fmin(255, obj->color.r * coef);
-// 	phong.g = fmin(255, obj->color.g * coef);
-// 	phong.b = fmin(255, obj->color.b * coef);
-// 	return (rgb_to_int(phong));
-// }
-
 double	vec_length(t_vector v)
 {
 	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
-int compute_lighting(t_rt *rt, t_vector point, t_vector normal, t_vector view_dir, t_object *obj)
+int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 {
-	t_color phong;
-	t_vector light_dir;
-	t_light	*light;
-	double ambient, diffuse, specular;
-	double n_dot_l, r_dot_v;
+	(void)normal;
+	t_color final_color = {0, 0, 0};
+	t_light *light = rt->light;
+	t_object *obj = closest_hit->closest_object;
+	// double light_distance;
+	// t_vector light_dir;
 
-	light = &rt->light;	
+	// Normalize vectors first
+	// t_vector view_dir = vec_norm(rt->camera.orientation);
+
+	final_color.r = obj->color.r * rt->ambient.lighting ;
+	final_color.g = obj->color.g * rt->ambient.lighting ;
+	final_color.b = obj->color.b * rt->ambient.lighting ;
+
 	while (light)
 	{
-		light_dir = vec_norm(vec_sub(light->position, point));
-		n_dot_l = vec_dot(normal, light_dir);
-		r_dot_v = vec_dot(reflect_light(normal, light_dir), view_dir);
-		ambient = light->brightness;
-		diffuse = fmax(n_dot_l, 0.0);
-		specular = pow(fmax(r_dot_v, 0.0), 32);
-		phong = mix_color(obj->color, ambient, obj->color, diffuse);
-		phong = mix_color(phong, 1.0, (t_color){1, 1, 1}, specular);
+/* 		// Calculate light direction and distance
+		light_dir = vec_sub(light->position, point);
+		// light_distance = vec_length(light_dir);
+		light_dir = vec_norm(light_dir);
+
+		// Shadow check
+		// Diffuse component
+		double n_dot_l = fmax(0.0, vec_dot(normal, light_dir));
+		final_color.r += obj->color.r * light->brightness * n_dot_l ;
+		final_color.g += obj->color.g * light->brightness * n_dot_l ;
+		final_color.b += obj->color.b * light->brightness * n_dot_l ;
+
+		// Specular component
+		t_vector reflect_dir = reflect_light(normal, light_dir);
+		*/
+		// double r_dot_v = pow(fmax(0.0, vec_dot(reflect_dir, view_dir)), 1.0); 
+		// final_color.g += light->color.g * light->brightness * r_dot_v;
+		// final_color.b += light->color.b * light->brightness * r_dot_v;
+		// final_color.r += light->color.r * light->brightness * r_dot_v;
+		final_color = mix_color(final_color, 1.0, phong_model(*closest_hit, *light, rt->camera), 1.0);
+
 		light = light->next;
 	}
-	return (rgb_to_int(phong));
+
+	final_color.r = fmin(255, final_color.r);
+	final_color.g = fmin(255, final_color.g);
+	final_color.b = fmin(255, final_color.b);
+
+	return (rgb_to_int(final_color));
+}
+
+int	cylinder_intersect(t_object *object, t_ray *ray, int *t)
+{
+	t_cylinder	*cylinder = (t_cylinder *)object->object;
+	t_vector	oc;
+	double		a;
+	double		b;
+	double		c;
+	double		discriminant;
+
+	oc = vec_sub(ray->origin, cylinder->position);
+	a = vec_dot(ray->direction, ray->direction) - pow(vec_dot(ray->direction, cylinder->direction), 2);
+	b = 2 * (vec_dot(ray->direction, oc) - vec_dot(ray->direction, cylinder->direction) * vec_dot(oc, cylinder->direction));
+	c = vec_dot(oc, oc) - pow(vec_dot(oc, cylinder->direction), 2) - pow(cylinder->diameter / 2, 2);
+	discriminant = b * b - 4 * a * c;
+	if (discriminant < 0)
+		return (0);
+	*t = (-b - sqrt(discriminant)) / (2 * a);
+	if (*t < 0)
+		return (0);
+	return (1);
 }
 
 void	set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t)
@@ -413,6 +285,11 @@ t_hit_info find_closest_object(t_rt *rt, t_ray *ray)
 			if (t > 0 && t < closest_hit.dist)
 				set_hit_info(&closest_hit, ray, temp, t);
 		}
+		if (temp->type == CYLINDER && cylinder_intersect(temp, ray, &t))
+		{
+			if (t > 0 && t < closest_hit.dist)
+				set_hit_info(&closest_hit, ray, temp, t);
+		}
 		// if (closest_hit.hit)
 		// 	printf("CLoses hit object %d\n", closest_hit.closest_object->type);
 		temp = temp->next;
@@ -428,7 +305,7 @@ int	intersect(t_rt *rt, int x, int y)
 	ray = get_ray(rt, x, y);
 	closest_hit = find_closest_object(rt, &ray);
 	if (closest_hit.hit)
-		return (compute_lighting(rt, closest_hit.hit_point, closest_hit.normal, vec_norm(vec_sub(rt->camera.position, closest_hit.hit_point)), closest_hit.closest_object));
+		return (compute_lighting(rt, &closest_hit, vec_norm(vec_sub(rt->camera.position, closest_hit.hit_point))));
 	return (0);
 }
 

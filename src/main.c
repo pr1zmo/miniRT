@@ -24,13 +24,18 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 
 void	show_light(t_rt *rt)
 {
-	for (int i = 0; i < HEIGHT; i++)
+	t_light *temp = rt->light;
+	while (temp)
 	{
-		for (int j = 0; j < WIDTH; j++)
+		for (int i = 0; i < HEIGHT; i++)
 		{
-			if (i == rt->light.position.x || j == rt->light.position.y)
-				my_mlx_pixel_put(&rt->img, j, i, 0xffffff);
+			for (int j = 0; j < WIDTH; j++)
+			{
+				if (i == temp->position.x || j == temp->position.y)
+					my_mlx_pixel_put(&rt->img, j, i, 0xffffff);
+			}
 		}
+		temp = temp->next;
 	}
 }
 
@@ -177,18 +182,18 @@ int get_current_color(t_rt *rt, int x, int y)
 	return (color);
 }
 
-int	handle_mouse_movements(int x, int y, t_rt *rt)
-{
-	int	color;
-	if (!rt || rt->rendering)
-		return (0);
-	if (rt->rendered)
-	{
-		color = get_current_color(rt, x, y);
-		printf("color: %d\n", color);
-	}
-	return (0);
-}
+// int	handle_mouse_movements(int x, int y, t_rt *rt)
+// {
+// 	int	color;
+// 	if (!rt || rt->rendering)
+// 		return (0);
+// 	if (rt->rendered)
+// 	{
+// 		color = get_current_color(rt, x, y);
+// 		printf("color: %d\n", color);
+// 	}
+// 	return (0);
+// }
 
 void	init_rt(t_rt *rt)
 {
@@ -202,6 +207,19 @@ void	init_rt(t_rt *rt)
 	rt->img.addr = mlx_get_data_addr(rt->img.img, &rt->img.bits_per_pixel,
 			&rt->img.line_length, &rt->img.endian);
 	rt->object_count = 0;
+}
+
+void	print_light(t_light *light)
+{
+	int	i = 0;
+	t_light *temp = light;
+	while (temp)
+	{
+		printf("Light position: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
+		temp = temp->next;
+		i++;
+	}
+	printf("Total lights: %d\n", i);
 }
 
 int main(int ac, char **av)
@@ -221,10 +239,11 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	open_file(rt, av[1]);
+	print_light(rt->light);
 	init_rt(rt);
 	render(rt);
 	mlx_key_hook(rt->win, key_hook, rt);
-	mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
+	// mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);
 	mlx_loop(rt->mlx);
 	return (0);

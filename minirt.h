@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/02 22:41:57 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:53:05 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,7 @@ typedef struct s_rt
 	t_ambient	ambient;
 	t_camera	camera;
 	t_img		img;
-	t_light		light;
+	t_light		*light;
 	t_object	*object;
 }	t_rt;
 

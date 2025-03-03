@@ -66,7 +66,7 @@ void	ft_add_back_l(t_light **list, t_light *new)
 	t_light	*temp;
 
 	if (new == NULL)
-		return;
+		return ;
 	if (*list == NULL)
 	{
 		*list = new;
@@ -75,25 +75,27 @@ void	ft_add_back_l(t_light **list, t_light *new)
 	else
 	{
 		temp = *list;
-		while (temp->next)
+		printf("list light: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
+		printf("temp light: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
+		while (temp->next != NULL)
 			temp = temp->next;
 		temp->next = new;
 		new->next = NULL;
 	}
 }
 
-void	set_light(char **line, t_light *light)
+void	set_light(char **line, t_light **list)
 {
-	t_light	*new_light;
+	t_light	*light;
 
-	new_light = (t_light *)malloc(sizeof(t_light));
-	if (!new_light)
-		return;
-	new_light->brightness = atoi_double(line[2]);
-	set_direction(line[1], &new_light->position);
-	set_rgb(line[3], &new_light->color);
-	new_light->next = NULL;
-	ft_add_back_l(&light, new_light);
+	light = (t_light *)malloc(sizeof(t_light));
+	if (!light)
+		return ;
+	set_direction(line[1], &light->position);
+	light->brightness = atoi_double(line[2]);
+	set_rgb(line[3], &light->color);
+	light->next = NULL;
+	ft_add_back_l(list, light);
 }
 
 void	set_ambient(char **line, t_ambient *ambient)
