@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/03 19:53:05 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/03 21:16:28 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,7 @@ t_vector		scale_vector(double s, t_vector v);
 //ray tracer
 void			r_trace(t_rt *rt, int x, int y);
 int				intersect(t_rt *rt, int x, int y);
+int				compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal);
 
 // events
 int				handle_mouse_movements(int x, int y, t_rt *rt);
@@ -255,34 +256,10 @@ int				handle_mouse_movements(int x, int y, t_rt *rt);
 
 t_ray			get_ray(t_rt *rt, int x, int y);
 
-// int check_sphere(t_rt *rt, int x, int y)
-// {
-// 	t_sphere *sphere;
-// 	double r, a, b, c, discriminant;
-// 	t_vector d, sub;
-// 	t_vector Q = {0, 0, 0}; // Ray origin at (0,0,0)
-// 	t_vector curr = {x, y, 1}; // Current pixel location in 3D
-//
-// 	// Get sphere object
-// 	sphere = (t_sphere *)rt->object;
-// 	r = sphere->diameter / 2;
-//
-// 	// Compute ray direction d (from camera to pixel)
-// 	d = vec_sub(curr, Q);
-// 	d = vector_normalize(d); // Ensure d is a unit vector
-//
-// 	// Compute coefficients for quadratic equation
-// 	sub = vec_sub(Q, sphere->position);
-// 	a = vector_dot(d, d);
-// 	b = 2 * vector_dot(d, sub);
-// 	if (vector_dot(sub, sub) < pow(r, 2))
-// 		return (1);
-// 	c = vector_dot(sub, sub) - (r * r);
-// 	// Compute discriminant
-// 	discriminant = (b * b) - (4 * a * c);
-//
-// 	// Check if ray intersects the sphere
-// 	if (discriminant < 0)
-// 		return (0); // No intersection
-// 	return (0); // Intersection detected
-// }
+// intersection
+
+void			set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t);
+t_hit_info		find_closest_object(t_rt *rt, t_ray *ray);
+int				sphere_intersect(t_object *object, t_ray *ray, int *t);
+int				plane_intersect(t_object *object, t_ray *ray, int *t);
+int				cylinder_intersect(t_object *object, t_ray *ray, int *t);

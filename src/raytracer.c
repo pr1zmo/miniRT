@@ -13,21 +13,7 @@ double	scale(int number, int low, int high, int old_low, int old_high)
 	return (result);
 }
 
-int	plane_intersect(t_object *object, t_ray *ray, int *t)
-{
-	t_plane	*plane;
-	double	denom;
 
-	plane = (t_plane *)object->object;
-	denom = vec_dot(vec_norm(plane->direction), ray->direction);
-	if (fabs(denom) > 0.0001)
-	{
-		*t = vec_dot(vec_sub(plane->position, ray->origin), vec_norm(plane->direction)) / denom;
-		if (*t >= 0)
-			return (1);
-	}
-	return (0);
-}
 
 // int	sphere_intersect(t_object *object, t_ray *ray, int *t)
 // {
@@ -51,25 +37,7 @@ int	plane_intersect(t_object *object, t_ray *ray, int *t)
 // 	return (1);
 // }
 
-int sphere_intersect(t_object *object, t_ray *ray, int *t)
-{
-	t_sphere *sphere = (t_sphere *)object->object;
-	t_vector oc;
-	double a, b, c, discriminant;
-	double radius = sphere->diameter / 2.0;
 
-	oc = vec_sub(ray->origin, sphere->position);
-	a = vec_dot(ray->direction, ray->direction);
-	b = 2 * vec_dot(oc, ray->direction);
-	c = vec_dot(oc, oc) - (radius * radius);
-	discriminant = b * b - 4 * a * c;
-	if (discriminant < 0)
-		return (0);
-	*t = (-b - sqrt(discriminant)) / (2 * a);
-	if (*t < 0)
-		return (0);
-	return (1);
-}
 
 t_ray get_ray(t_rt *rt, int x, int y)
 {
@@ -137,42 +105,46 @@ int	rgb_to_int(t_color color)
 
 t_color phong_model(t_hit_info hit, t_light light, t_camera camera)
 {
-	t_vector light_dir, view_dir, reflect_dir;
-	t_color ambient, diffuse, specular, final_color;
-	double diff_intensity, spec_intensity;
-	double shininess = 32;
+	t_color	final_color = hit.color;
+	(void)camera;
+	(void)light;
+	(void)hit;
+	// t_vector light_dir, view_dir, reflect_dir;
+	// t_color ambient, diffuse, specular;
+	// double diff_intensity, spec_intensity;
+	// double shininess = 32;
 
-	hit.normal = vec_norm(hit.normal);
-	light_dir = vec_sub(light.position, hit.hit_point);
-	light_dir = vec_norm(light_dir);
+	// hit.normal = vec_norm(hit.normal);
+	// light_dir = vec_sub(light.position, hit.hit_point);
+	// light_dir = vec_norm(light_dir);
 
-	view_dir = vec_sub(camera.position, hit.hit_point);
-	view_dir = vec_norm(view_dir);
+	// view_dir = vec_sub(camera.position, hit.hit_point);
+	// view_dir = vec_norm(view_dir);
 
-	ambient.r = hit.color.r * light.color.r * 0.1;
-	ambient.g = hit.color.g * light.color.g * 0.1;
-	ambient.b = hit.color.b * light.color.b * 0.1;
+	// ambient.r = hit.color.r * light.color.r * 0.1;
+	// ambient.g = hit.color.g * light.color.g * 0.1;
+	// ambient.b = hit.color.b * light.color.b * 0.1;
 
-	diff_intensity = fmax(vec_dot(hit.normal, light_dir), 0.0);
-	diffuse.r = hit.color.r * light.color.r * diff_intensity;
-	diffuse.g = hit.color.g * light.color.g * diff_intensity;
-	diffuse.b = hit.color.b * light.color.b * diff_intensity;
+	// diff_intensity = fmax(vec_dot(hit.normal, light_dir), 0.0);
+	// diffuse.r = hit.color.r * light.color.r * diff_intensity;
+	// diffuse.g = hit.color.g * light.color.g * diff_intensity;
+	// diffuse.b = hit.color.b * light.color.b * diff_intensity;
 
-	reflect_dir = vec_sub(vec_scale(hit.normal, 2 * vec_dot(hit.normal, light_dir)), light_dir);
-	reflect_dir = vec_norm(reflect_dir);
-	spec_intensity = pow(fmax(vec_dot(view_dir, reflect_dir), 0.0), shininess);
+	// reflect_dir = vec_sub(vec_scale(hit.normal, 2 * vec_dot(hit.normal, light_dir)), light_dir);
+	// reflect_dir = vec_norm(reflect_dir);
+	// spec_intensity = pow(fmax(vec_dot(view_dir, reflect_dir), 0.0), shininess);
 
-	specular.r = light.color.r * spec_intensity;
-	specular.g = light.color.g * spec_intensity;
-	specular.b = light.color.b * spec_intensity;
+	// specular.r = light.color.r * spec_intensity;
+	// specular.g = light.color.g * spec_intensity;
+	// specular.b = light.color.b * spec_intensity;
 
-	final_color.r = ambient.r + diffuse.r + specular.r;
-	final_color.g = ambient.g + diffuse.g + specular.g;
-	final_color.b = ambient.b + diffuse.b + specular.b;
+	// final_color.r = ambient.r + diffuse.r + specular.r;
+	// final_color.g = ambient.g + diffuse.g + specular.g;
+	// final_color.b = ambient.b + diffuse.b + specular.b;
 
-	final_color.r = fmin(final_color.r, 1.0);
-	final_color.g = fmin(final_color.g, 1.0);
-	final_color.b = fmin(final_color.b, 1.0);
+	final_color.r = fmax(final_color.r, 255.0);
+	final_color.g = fmax(final_color.g, 255.0);
+	final_color.b = fmax(final_color.b, 255.0);
 
 	return final_color;
 }
@@ -193,13 +165,26 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 
 	// Normalize vectors first
 	// t_vector view_dir = vec_norm(rt->camera.orientation);
-
-	final_color.r = obj->color.r * rt->ambient.lighting ;
-	final_color.g = obj->color.g * rt->ambient.lighting ;
-	final_color.b = obj->color.b * rt->ambient.lighting ;
-
+	final_color.r = obj->color.r * rt->ambient.lighting;
+	final_color.g = obj->color.g * rt->ambient.lighting;
+	final_color.b = obj->color.b * rt->ambient.lighting;
+	
 	while (light)
 	{
+		t_vector	light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
+		double coef = fmax(0.0, vec_dot(normal, light_dir));
+		if (coef == 0.0)
+		{
+			final_color.r += light->color.r;
+			final_color.g += light->color.g;
+			final_color.b += light->color.b;
+		}
+		else
+		{
+			final_color.r += obj->color.r * (1 - coef) + light->color.r * coef;
+			final_color.g += obj->color.g * (1 - coef) + light->color.g * coef;
+			final_color.b += obj->color.b * (1 - coef) + light->color.b * coef;
+		}
 /* 		// Calculate light direction and distance
 		light_dir = vec_sub(light->position, point);
 		// light_distance = vec_length(light_dir);
@@ -216,10 +201,6 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 		t_vector reflect_dir = reflect_light(normal, light_dir);
 		*/
 		// double r_dot_v = pow(fmax(0.0, vec_dot(reflect_dir, view_dir)), 1.0); 
-		// final_color.g += light->color.g * light->brightness * r_dot_v;
-		// final_color.b += light->color.b * light->brightness * r_dot_v;
-		// final_color.r += light->color.r * light->brightness * r_dot_v;
-		final_color = mix_color(final_color, 1.0, phong_model(*closest_hit, *light, rt->camera), 1.0);
 
 		light = light->next;
 	}
@@ -231,28 +212,6 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 	return (rgb_to_int(final_color));
 }
 
-int	cylinder_intersect(t_object *object, t_ray *ray, int *t)
-{
-	t_cylinder	*cylinder = (t_cylinder *)object->object;
-	t_vector	oc;
-	double		a;
-	double		b;
-	double		c;
-	double		discriminant;
-
-	oc = vec_sub(ray->origin, cylinder->position);
-	a = vec_dot(ray->direction, ray->direction) - pow(vec_dot(ray->direction, cylinder->direction), 2);
-	b = 2 * (vec_dot(ray->direction, oc) - vec_dot(ray->direction, cylinder->direction) * vec_dot(oc, cylinder->direction));
-	c = vec_dot(oc, oc) - pow(vec_dot(oc, cylinder->direction), 2) - pow(cylinder->diameter / 2, 2);
-	discriminant = b * b - 4 * a * c;
-	if (discriminant < 0)
-		return (0);
-	*t = (-b - sqrt(discriminant)) / (2 * a);
-	if (*t < 0)
-		return (0);
-	return (1);
-}
-
 void	set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t)
 {
 	closest->hit = 1;
@@ -261,52 +220,6 @@ void	set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t)
 	closest->hit_point = vec_add(ray->origin, vec_scale(ray->direction, t));
 	closest->normal = vec_norm(vec_sub(closest->hit_point, temp->position));
 	closest->color = temp->color;
-}
-
-t_hit_info find_closest_object(t_rt *rt, t_ray *ray)
-{
-	t_object	*temp;
-	t_hit_info	closest_hit;
-	int			t;
-	
-	closest_hit.hit = 0;
-	closest_hit.dist = INFINITY;
-
-	temp = rt->object;
-	while (temp)
-	{
-		if (temp->type == PLANE && plane_intersect(temp, ray, &t))
-		{
-			if (t > 0 && t < closest_hit.dist)
-				set_hit_info(&closest_hit, ray, temp, t);
-		}
-		if (temp->type == SPHERE && sphere_intersect(temp, ray, &t))
-		{
-			if (t > 0 && t < closest_hit.dist)
-				set_hit_info(&closest_hit, ray, temp, t);
-		}
-		if (temp->type == CYLINDER && cylinder_intersect(temp, ray, &t))
-		{
-			if (t > 0 && t < closest_hit.dist)
-				set_hit_info(&closest_hit, ray, temp, t);
-		}
-		// if (closest_hit.hit)
-		// 	printf("CLoses hit object %d\n", closest_hit.closest_object->type);
-		temp = temp->next;
-	}
-	return (closest_hit);
-}
-
-int	intersect(t_rt *rt, int x, int y)
-{
-	t_ray		ray;
-	t_hit_info	closest_hit;
-
-	ray = get_ray(rt, x, y);
-	closest_hit = find_closest_object(rt, &ray);
-	if (closest_hit.hit)
-		return (compute_lighting(rt, &closest_hit, vec_norm(vec_sub(rt->camera.position, closest_hit.hit_point))));
-	return (0);
 }
 
 t_color int_to_rgb(int color)
