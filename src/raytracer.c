@@ -39,14 +39,11 @@ double	scale(int number, int low, int high, int old_low, int old_high)
 
 
 
-t_ray get_ray(t_rt *rt, int x, int y)
+t_ray get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
 {
 	t_ray		ray;
 	t_vector	right, up, forward, screen_pixel;
 	double		px_x, px_y, fov_adjustment;
-
-	ray.origin = rt->camera.position;
-	forward = vec_norm(rt->camera.orientation);
 
 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
 	up = vec_cro(right, forward);
@@ -154,6 +151,38 @@ double	vec_length(t_vector v)
 	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
+
+// int	compute_illimunation(t_light *light, t_info *info,
+// 		t_vars *vars, float *intensity)
+// {
+// 	t_vec3	lighdir;
+// 	t_ray	lightray;
+// 	float	lighdist;
+// 	int		validint;
+
+// 	// make a normal vector pointing the direction from intpoint to the light 
+// 	lighdir = normalize(vec_sub(light->position, info->hitpoint));
+// 	// calculate distance so we dont render objects behind the light
+// 	lighdist = length(vec_sub(light->position, info->hitpoint));
+// 	// make ray (intpoint, direction to light)
+// 	lightray = new_ray(info->hitpoint, vec_add(info->hitpoint, lighdir));
+// 	// test intersection of all objects in the scene
+// 	validint = cast_ray(&lightray, vars, lighdist, info);
+// 	if (!validint)
+// 	{
+// 		// calculate intensity based on angle between normal and light direction
+// 		*intensity = light->brightness * fmax(dot_product(lighdir, info->localnormal), 0.0);
+// 		return (1);
+// 	}
+// 	else
+// 	{
+// 		// means there was an object blocking the light on that point of the object
+// 		*intensity = 0.0f;
+// 		return (0);
+// 	}
+// 	return (0);
+// }
+
 int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 {
 	(void)normal;
@@ -161,47 +190,23 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
 	t_light *light = rt->light;
 	t_object *obj = closest_hit->closest_object;
 	// double light_distance;
-	// t_vector light_dir;
 
 	// Normalize vectors first
 	// t_vector view_dir = vec_norm(rt->camera.orientation);
-	final_color.r = obj->color.r * rt->ambient.lighting;
-	final_color.g = obj->color.g * rt->ambient.lighting;
-	final_color.b = obj->color.b * rt->ambient.lighting;
 	
 	while (light)
 	{
-		t_vector	light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
-		double coef = fmax(0.0, vec_dot(normal, light_dir));
-		if (coef == 0.0)
-		{
-			final_color.r += light->color.r;
-			final_color.g += light->color.g;
-			final_color.b += light->color.b;
-		}
-		else
-		{
-			final_color.r += obj->color.r * (1 - coef) + light->color.r * coef;
-			final_color.g += obj->color.g * (1 - coef) + light->color.g * coef;
-			final_color.b += obj->color.b * (1 - coef) + light->color.b * coef;
-		}
-/* 		// Calculate light direction and distance
-		light_dir = vec_sub(light->position, point);
-		// light_distance = vec_length(light_dir);
-		light_dir = vec_norm(light_dir);
-
-		// Shadow check
-		// Diffuse component
-		double n_dot_l = fmax(0.0, vec_dot(normal, light_dir));
-		final_color.r += obj->color.r * light->brightness * n_dot_l ;
-		final_color.g += obj->color.g * light->brightness * n_dot_l ;
-		final_color.b += obj->color.b * light->brightness * n_dot_l ;
-
-		// Specular component
-		t_vector reflect_dir = reflect_light(normal, light_dir);
-		*/
-		// double r_dot_v = pow(fmax(0.0, vec_dot(reflect_dir, view_dir)), 1.0); 
-
+		t_vector light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
+		double light_dist = vec_length(vec_sub(light->position, closest_hit->hit_point));
+		t_ray light_ray = get_ray(rt, light->position.x, light->position.y, closest_hit->hit_point, light_dir);
+		// if (shadow_intersect(rt, &shadow_ray, light_distance))
+		// {
+		// 	light = light->next;
+		// 	continue;
+		// }
+		final_color.r += coef * light->color.r * obj->color.r;
+		final_color.g += coef * light->color.g * obj->color.g;
+		final_color.b += coef * light->color.b * obj->color.b;
 		light = light->next;
 	}
 

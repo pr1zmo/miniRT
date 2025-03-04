@@ -5,7 +5,7 @@ int	intersect(t_rt *rt, int x, int y)
 	t_ray		ray;
 	t_hit_info	closest_hit;
 
-	ray = get_ray(rt, x, y);
+	ray = get_ray(rt, x, y, rt->camera.position, rt->camera.orientation);
 	closest_hit = find_closest_object(rt, &ray);
 	if (closest_hit.hit)
 		return (compute_lighting(rt, &closest_hit, vec_norm(vec_sub(rt->camera.position, closest_hit.hit_point))));

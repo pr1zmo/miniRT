@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/03 21:16:28 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/03 22:48:17 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,7 +254,7 @@ int				handle_mouse_movements(int x, int y, t_rt *rt);
 
 // scene
 
-t_ray			get_ray(t_rt *rt, int x, int y);
+t_ray			get_ray(t_rt *rt, int x, int y, t_vector position, t_vector orientation);
 
 // intersection
 
