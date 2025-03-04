@@ -75,8 +75,6 @@ void	ft_add_back_l(t_light **list, t_light *new)
 	else
 	{
 		temp = *list;
-		printf("list light: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
-		printf("temp light: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
 		while (temp->next != NULL)
 			temp = temp->next;
 		temp->next = new;

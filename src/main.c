@@ -95,9 +95,8 @@ void	*monitoring(void	*data)
 	t_rt *rt;
 
 	rt = (t_rt *)data;
-	while (rt->rendering)
+	if (rt->rendering)
 		printf("Rending...\n");
-	printf("Finished!\n");
 	return (NULL);
 }
 
@@ -144,9 +143,9 @@ void move_sphere(t_rt *rt, int keycode)
 
 int	key_hook(int keycode, t_rt *rt)
 {
-	move_sphere(rt, keycode);
 	if (rt->rendering)
 		return (0);
+	move_sphere(rt, keycode);
 	printf("keycode: %d\n", keycode);
 	if (keycode == 65307)
 		destroy(rt);
@@ -209,19 +208,6 @@ void	init_rt(t_rt *rt)
 	rt->object_count = 0;
 }
 
-void	print_light(t_light *light)
-{
-	int	i = 0;
-	t_light *temp = light;
-	while (temp)
-	{
-		printf("Light position: %f %f %f\n", temp->position.x, temp->position.y, temp->position.z);
-		temp = temp->next;
-		i++;
-	}
-	printf("Total lights: %d\n", i);
-}
-
 int main(int ac, char **av)
 {
 	t_rt	*rt;
@@ -238,10 +224,11 @@ int main(int ac, char **av)
 		perror("Failed to allocate memory for t_rt");
 		exit(EXIT_FAILURE);
 	}
+	rt->light = NULL;
 	open_file(rt, av[1]);
-	print_light(rt->light);
 	init_rt(rt);
 	render(rt);
+	printf("Finished!\n");
 	mlx_key_hook(rt->win, key_hook, rt);
 	// mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);

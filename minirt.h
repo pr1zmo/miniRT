@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/03 22:48:17 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:41:33 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 #define S 115
 #define D 100
 #define SPACE 32
-#define WIDTH 1260
+#define WIDTH 1366
 #define BOUNCES 3
 #define ASPECT_RATIO (16.0 / 9.0)
 
@@ -247,7 +247,7 @@ t_vector		scale_vector(double s, t_vector v);
 //ray tracer
 void			r_trace(t_rt *rt, int x, int y);
 int				intersect(t_rt *rt, int x, int y);
-int				compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal);
+int				compute_lighting(t_rt *rt, t_hit_info *closest_hit);
 
 // events
 int				handle_mouse_movements(int x, int y, t_rt *rt);

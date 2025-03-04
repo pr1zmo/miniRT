@@ -53,6 +53,14 @@ int	destroy(t_rt *rt)
 	// 	free(rt->ray);
 	if (rt->file_fd > 0)
 		close(rt->file_fd);
+	while (rt->light)
+	{
+		t_light	*temp;
+
+		temp = rt->light;
+		rt->light = rt->light->next;
+		free(temp);
+	}
 	free(rt);
 	exit(0);
 }

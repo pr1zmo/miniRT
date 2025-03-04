@@ -13,38 +13,14 @@ double	scale(int number, int low, int high, int old_low, int old_high)
 	return (result);
 }
 
-
-
-// int	sphere_intersect(t_object *object, t_ray *ray, int *t)
-// {
-// 	t_sphere	*sphere = (t_sphere *)object->object;
-// 	t_vector	oc;
-// 	double		a;
-// 	double		b;
-// 	double		c;
-// 	double		discriminant;
-
-// 	oc = vec_sub(ray->origin, sphere->position);
-// 	a = vec_dot(ray->direction, ray->direction);
-// 	b = 2.0 * vec_dot(oc, ray->direction);
-// 	c = vec_dot(oc, oc) - (sphere->diameter * sphere->diameter);
-// 	discriminant = b * b - 4 * a * c;
-// 	if (discriminant < 0)
-// 		return (0);
-// 	*t = (-b - sqrt(discriminant)) / (2 * a);
-// 	if (*t < 0)
-// 		return (0);
-// 	return (1);
-// }
-
-
-
 t_ray get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
 {
 	t_ray		ray;
 	t_vector	right, up, forward, screen_pixel;
 	double		px_x, px_y, fov_adjustment;
 
+	forward = vec_norm(orientation);
+	ray.origin = origin;
 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
 	up = vec_cro(right, forward);
 
@@ -58,6 +34,27 @@ t_ray get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
 	return (ray);
 }
 
+// t_ray get_ray(t_rt *rt, int x, int y)
+// {
+// 	t_ray		ray;
+// 	t_vector	right, up, forward, screen_pixel;
+// 	double		px_x, px_y, fov_adjustment;
+
+// 	ray.origin = rt->camera.position;
+// 	forward = vec_norm(rt->camera.orientation);
+
+// 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
+// 	up = vec_cro(right, forward);
+
+// 	fov_adjustment = tan((rt->camera.fov * M_PI / 180.0) / 2.0);
+
+// 	px_x = (2 * ((x + 0.5) / rt->width) - 1) * ASPECT_RATIO * fov_adjustment;
+// 	px_y = (1 - 2 * ((y + 0.5) / rt->height)) * fov_adjustment;
+
+// 	screen_pixel = vec_add(vec_add(vec_scale(right, px_x), vec_scale(up, px_y)), forward);
+// 	ray.direction = vec_norm(screen_pixel);
+// 	return (ray);
+// }
 
 /*
 	Phong reflection model:
@@ -183,36 +180,39 @@ double	vec_length(t_vector v)
 // 	return (0);
 // }
 
-int compute_lighting(t_rt *rt, t_hit_info *closest_hit, t_vector normal)
-{
-	(void)normal;
-	t_color final_color = {0, 0, 0};
-	t_light *light = rt->light;
-	t_object *obj = closest_hit->closest_object;
-	// double light_distance;
+/*
+	intensity = ambient + lights(light_dir*normal)*diffuse_intensity+pow(reflection_vector*view_direction), shininess)*specular_intensity)
+*/
 
-	// Normalize vectors first
-	// t_vector view_dir = vec_norm(rt->camera.orientation);
+t_color	phong(t_rt *rt, t_hit_info *closes_hit, t_color basic)
+{
+	double	ambient;
+	double	diffuse;
+	double	specular;
+
+	ambient = rt->ambient.lighting;
+	diffuse = 
+}
+
+int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
+{
+	t_color		final_color = {0, 0, 0};
+	t_light		*light = rt->light;
+	t_object	*obj = closest_hit->closest_object;
+	double		coef;
+	t_vector	light_dir;
 	
 	while (light)
 	{
-		t_vector light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
-		double light_dist = vec_length(vec_sub(light->position, closest_hit->hit_point));
-		t_ray light_ray = get_ray(rt, light->position.x, light->position.y, closest_hit->hit_point, light_dir);
-		// if (shadow_intersect(rt, &shadow_ray, light_distance))
-		// {
-		// 	light = light->next;
-		// 	continue;
-		// }
-		final_color.r += coef * light->color.r * obj->color.r;
-		final_color.g += coef * light->color.g * obj->color.g;
-		final_color.b += coef * light->color.b * obj->color.b;
+		light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
+		coef = rt->ambient.lighting * light->brightness * fmax(vec_dot(light_dir, closest_hit->normal), 0.0);
+		final_color.r += coef * obj->color.r;
+		final_color.g += coef * obj->color.g;
+		final_color.b += coef * obj->color.b;
 		light = light->next;
 	}
 
-	final_color.r = fmin(255, final_color.r);
-	final_color.g = fmin(255, final_color.g);
-	final_color.b = fmin(255, final_color.b);
+	final_color = phong(rt, closest_hit, final_color);
 
 	return (rgb_to_int(final_color));
 }
@@ -239,7 +239,7 @@ t_color int_to_rgb(int color)
 
 void	r_trace(t_rt *rt, int x, int y)
 {
-	int	result;
+	int	result = 0;
 
 	result = intersect(rt, x, y);
 	if (result >= 0)
