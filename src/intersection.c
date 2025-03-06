@@ -4,12 +4,24 @@ int	intersect(t_rt *rt, int x, int y)
 {
 	t_ray		ray;
 	t_hit_info	closest_hit;
+	// int			color;
+	// int			i;
 
+	// i = 0;
+	// color = 0;
+	// while (i < BOUNCES)
+	// {
+	// 	ray = get_ray(rt, x, y, rt->camera.position, rt->camera.orientation);
+	// 	closest_hit = find_closest_object(rt, &ray);
+	// 	if (closest_hit.hit)
+	// 		color += compute_lighting(rt, &closest_hit);
+	// 	i++;
+	// }
 	ray = get_ray(rt, x, y, rt->camera.position, rt->camera.orientation);
 	closest_hit = find_closest_object(rt, &ray);
 	if (closest_hit.hit)
 		return (compute_lighting(rt, &closest_hit));
-	return (0);
+	return (-1);
 }
 
 t_hit_info find_closest_object(t_rt *rt, t_ray *ray)
@@ -82,7 +94,27 @@ int sphere_intersect(t_object *object, t_ray *ray, int *t)
 		return (0);
 	return (1);
 }
+/* 
+int	sphere_intersect(t_object *object, t_ray *ray, int *t)
+{
+	t_sphere	*sphere = (t_sphere *)object;
+	float	radius = sphere->diameter / 2;
+	t_vector	offset_ray_origin = vec_sub(ray->origin, object->position);
+	float	a = vec_dot(ray->direction, ray->direction);
+	float	b = 2 * vec_dot(offset_ray_origin, ray->direction);
+	float	c = vec_dot(offset_ray_origin, offset_ray_origin) - pow(radius, 2);
 
+	float	discriminant = pow(b, 2) - 4 * (a * c);
+
+	if (discriminant >= 0)
+	{
+		*t = (-b - sqrt(discriminant)) / (2 * a);
+		if (*t >= 0)
+			return (1);
+	}
+	return (0);
+}
+ */
 int	plane_intersect(t_object *object, t_ray *ray, int *t)
 {
 	t_plane	*plane;

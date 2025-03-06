@@ -181,17 +181,50 @@ double	vec_length(t_vector v)
 // }
 
 /*
-	intensity = ambient + lights(light_dir*normal)*diffuse_intensity+pow(reflection_vector*view_direction), shininess)*specular_intensity)
+	intensity = ambient + (lights(light_dir*normal)*diffuse_intensity) + (pow(reflection_vector*view_direction), shininess)*specular_intensity))
 */
 
-t_color	phong(t_rt *rt, t_hit_info *closes_hit, t_color basic)
+t_vector	scale_vector(double x, t_vector vec)
 {
-	double	ambient;
-	double	diffuse;
-	double	specular;
+	t_vector	result;
 
-	ambient = rt->ambient.lighting;
-	diffuse = 
+	result.x = vec.x * x;
+	result.y = vec.y * x;
+	result.z = vec.z * x;
+	return (result);
+}
+
+t_color	phong(t_rt *rt, t_hit_info *closest_hit, t_color basic)
+{
+	t_color		phong;
+	double		ambient;
+	double		diffuse;
+	double		specular;
+	t_vector	reflection_vector;
+	double		shininess = 0.1;
+	double		specular_intensity = 1;
+	double		diffuse_intensity = 1;
+
+	// ambient = rt->ambient.lighting;
+	ambient = 1;
+	t_vector	light_dir = vec_norm(vec_sub(rt->light->position, closest_hit->hit_point));
+	diffuse = vec_dot(light_dir, closest_hit->normal) * diffuse_intensity;
+	reflection_vector = scale_vector(2, vec_cro(light_dir, closest_hit->normal));
+	specular = pow(vec_dot(reflection_vector, closest_hit->hit_point), shininess) * specular_intensity;
+	phong.r = ambient * diffuse * specular * basic.r;
+	phong.g = ambient * diffuse * specular * basic.g;
+	phong.b = ambient * diffuse * specular * basic.b;
+	return (phong);
+}
+
+t_color	normalize_color(t_color color)
+{
+	t_color	normalized;
+
+	normalized.r = color.r / 255;
+	normalized.g = color.g / 255;
+	normalized.b = color.b / 255;
+	return (normalized);
 }
 
 int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
@@ -205,14 +238,18 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
 	while (light)
 	{
 		light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
-		coef = rt->ambient.lighting * light->brightness * fmax(vec_dot(light_dir, closest_hit->normal), 0.0);
-		final_color.r += coef * obj->color.r;
-		final_color.g += coef * obj->color.g;
-		final_color.b += coef * obj->color.b;
+		coef = light->brightness * fmax(vec_dot(light_dir, closest_hit->normal), 0.0);
+		t_color temp_light = normalize_color(light->color);
+		final_color.r += coef * temp_light.r * 255;
+		final_color.g += coef * temp_light.g * 255;
+		final_color.b += coef * temp_light.b * 255;
 		light = light->next;
 	}
-
-	final_color = phong(rt, closest_hit, final_color);
+	t_color temp = normalize_color(obj->color);
+	final_color.r = final_color.r * temp.r;
+	final_color.g = final_color.g * temp.g;
+	final_color.b = final_color.b * temp.b;
+	// final_color = phong(rt, closest_hit, final_color);
 
 	return (rgb_to_int(final_color));
 }
