@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/01/25 14:25:43 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:44:31 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,8 @@ typedef struct s_object
 {
 	t_type		type;
 	void		*object;
+	t_color		color;
+	t_vector	position;
 	t_object	*next;
 }	t_object;
 
@@ -164,7 +166,7 @@ int				parse(t_rt *rt);
 double			atoi_double(char *str);
 void			free_array(char *arr[]);
 int				array_length(char **arr);
-void			parsing_error(t_rt *rt, char *msg);
+void			parsing_error(char *msg);
 int				is_float(const char *c);
 int				check_range(char *line, int count, const int range[2]);
 void			set_direction(char *line, t_vector *directions);

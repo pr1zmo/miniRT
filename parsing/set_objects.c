@@ -19,6 +19,8 @@ void	set_cylinder(char **line, t_object **list)
 		return;
 	new_object->type = CYLINDER;
 	new_object->object = (void *)cylinder;
+	new_object->color = cylinder->color;
+	new_object->position = cylinder->position;
 	new_object->next = NULL;
 	ft_add_back(list, new_object, CYLINDER);
 }
@@ -40,6 +42,8 @@ void set_plane(char **line, t_object **list)
 		return;
 	new_object->type = PLANE;
 	new_object->object = (void *)plane;
+	new_object->color = plane->color;
+	new_object->position = plane->position;
 	new_object->next = NULL;
 	ft_add_back(list, new_object, PLANE);
 }
@@ -60,6 +64,8 @@ void set_sphere(char **line, t_object **list)
 		return;
 	new_object->type = SPHERE;
 	new_object->object = (void *)sphere;
+	new_object->color = sphere->color;
+	new_object->position = sphere->position;
 	new_object->next = NULL;
 	ft_add_back(list, new_object, SPHERE);
 }

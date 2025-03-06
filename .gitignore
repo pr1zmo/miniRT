@@ -1,5 +1,7 @@
 *.out
 *.o
+zizi
+logs
 *.a
 test*
 /trash

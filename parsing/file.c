@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 15:59:01 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/01/20 16:04:44 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:54:00 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ void	open_file(t_rt *rt, char *path)
 	if (check_file(rt) == 1 || parse(rt) == 1)
 	{
 		close(rt->file_fd);
-		free(rt);
-		exit(1);
+		destroy(rt);
 	}
 }
 
