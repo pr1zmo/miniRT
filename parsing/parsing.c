@@ -224,7 +224,8 @@ int	valid_line(char *arg)
 		return (0);
 	if (!ft_strncmp(arg, "A", 0) || !ft_strncmp(arg, "C", 0)
 		|| !ft_strncmp(arg, "L", 0) || !ft_strncmp(arg, "sp", 0)
-		|| !ft_strncmp(arg, "pl", 0) || !ft_strncmp(arg, "cy", 0))
+		|| !ft_strncmp(arg, "pl", 0) || !ft_strncmp(arg, "cy", 0)
+		|| !ft_strncmp(arg, "#", 1))
 		return (1);
 	return (0);
 }

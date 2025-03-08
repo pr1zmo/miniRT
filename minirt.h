@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/04 20:41:33 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/08 22:00:48 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ typedef struct s_rt
 	t_object	*object;
 }	t_rt;
 
-unsigned int	random_int(int state);
+unsigned int	random_int(void);
 void			my_mlx_pixel_put(t_img *data, int x, int y, int color);
 // int				check_collision(t_object *object, int x, int y);
 // void			check_hit(t_rt *rt, int x, int y);

@@ -2,9 +2,8 @@
 
 int	global_fd;
 
-unsigned int random_int(int state)
+unsigned int random_int(void)
 {
-	(void)state;
 	static unsigned int lcg_seed = 0xACE1u;
 	lcg_seed = (1103515247 * lcg_seed + 12345) % (1 << 31);
 	return (lcg_seed % 0xFFFFFF);
@@ -25,8 +24,10 @@ void	my_mlx_pixel_put(t_img *data, int x, int y, int color)
 void	show_light(t_rt *rt)
 {
 	t_light *temp = rt->light;
+	int		i = 0;
 	while (temp)
 	{
+		printf("light: %f %f | Color : {%f, %f, %f}\n", temp->position.x, temp->position.y, temp->color.r, temp->color.g, temp->color.b);
 		for (int i = 0; i < HEIGHT; i++)
 		{
 			for (int j = 0; j < WIDTH; j++)
@@ -35,8 +36,10 @@ void	show_light(t_rt *rt)
 					my_mlx_pixel_put(&rt->img, j, i, 0xffffff);
 			}
 		}
+		i++;
 		temp = temp->next;
 	}
+	printf("Total lights: %d\n", i);
 }
 
 void	*init_rays(void	*thread_data)
@@ -63,7 +66,7 @@ void	*init_rays(void	*thread_data)
 			r_trace(rt, j, i);
 		}
 	}
-	show_light(rt);
+	// show_light(rt);
 	rt->rendering = 0;
 	return (NULL);
 }
@@ -100,20 +103,29 @@ void	*monitoring(void	*data)
 	return (NULL);
 }
 
+// void	render(t_rt *rt)
+// {
+// 	pthread_t	thread[20];
+// 	pthread_t	monitor;
+
+// 	mlx_clear_window(rt->mlx, rt->win);
+// 	pthread_create(&monitor, NULL, monitoring, rt);
+// 	for (int i = 0; i < 20; i++) {
+// 		pthread_create(&thread[i], NULL, init_rays, rt);
+// 	}
+// 	for (int k = 0; k < 20; k++) {
+// 		pthread_join(thread[k], NULL);
+// 	}
+// 	pthread_join(monitor, NULL);
+// 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
+// 	rt->rendering = 0;
+// }
+
 void	render(t_rt *rt)
 {
-	pthread_t	thread[20];
-	pthread_t	monitor;
-
 	mlx_clear_window(rt->mlx, rt->win);
-	pthread_create(&monitor, NULL, monitoring, rt);
-	for (int i = 0; i < 20; i++) {
-		pthread_create(&thread[i], NULL, init_rays, rt);
-	}
-	for (int k = 0; k < 20; k++) {
-		pthread_join(thread[k], NULL);
-	}
-	pthread_join(monitor, NULL);
+	// monitoring(rt);
+	init_rays(rt);
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
 	rt->rendering = 0;
 }
@@ -145,7 +157,7 @@ int	key_hook(int keycode, t_rt *rt)
 {
 	if (rt->rendering)
 		return (0);
-	move_sphere(rt, keycode);
+	// move_sphere(rt, keycode);
 	printf("keycode: %d\n", keycode);
 	if (keycode == 65307)
 		destroy(rt);
