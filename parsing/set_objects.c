@@ -1,4 +1,48 @@
 #include "../minirt.h"
+/* 
+void	set_properties(char *line, t_sphere *sphere)
+{
+	char	**properties;
+
+	properties = ft_split(line, ',');
+	if (!properties)
+		return;
+	sphere->specular = atoi_double(properties[0]);
+	sphere->reflective = atoi_double(properties[1]);
+	sphere->transparency = atoi_double(properties[2]);
+	sphere->refractive_index = atoi_double(properties[3]);
+	ft_free_split(properties);
+} */
+
+t_cylinder	transform_cylinder(t_cylinder *cylinder, double scale)
+{
+	t_cylinder	new_cylinder;
+	
+	cylinder->position = vec_scale(cylinder->position, scale);
+	cylinder->diameter *= scale;
+	cylinder->height *= scale;
+	new_cylinder = *cylinder;
+	return (new_cylinder);
+}
+
+t_sphere	transform_sphere(t_sphere *sphere, double scale)
+{
+	t_sphere	new_sphere;
+
+	sphere->position = vec_scale(sphere->position, scale);
+	sphere->diameter *= scale;
+	new_sphere = *sphere;
+	return (new_sphere);
+}
+
+t_plane	transform_plane(t_plane *plane, double scale)
+{
+	t_plane	new_plane;
+
+	plane->position = vec_scale(plane->position, scale);
+	new_plane = *plane;
+	return (new_plane);
+}
 
 void	set_cylinder(char **line, t_object **list)
 {
@@ -12,8 +56,9 @@ void	set_cylinder(char **line, t_object **list)
 	cylinder->height = atoi_double(line[4]);
 	set_direction(line[1], &cylinder->position);
 	set_direction(line[2], &cylinder->direction);
+	// set_properties(line[6], &cylinder);
 	set_rgb(line[5], &cylinder->color);
-
+	// *cylinder = transform_cylinder(cylinder, 0.3);
 	new_object = (t_object *)malloc(sizeof(t_object));
 	if (!new_object)
 		return;
@@ -35,8 +80,9 @@ void set_plane(char **line, t_object **list)
 		return;
 	set_direction(line[1], &plane->position);
 	set_direction(line[2], &plane->direction);
+	// set_properties(line[5], &plane);
 	set_rgb(line[3], &plane->color);
-
+	// *plane = transform_plane(plane, 0.3);
 	new_object = (t_object *)malloc(sizeof(t_object));
 	if (!new_object)
 		return;
@@ -59,6 +105,8 @@ void set_sphere(char **line, t_object **list)
 	sphere->diameter = atoi_double(line[2]);
 	set_direction(line[1], &sphere->position);
 	set_rgb(line[3], &sphere->color);
+	// set_properties(line[4], &sphere);
+	// *sphere = transform_sphere(sphere, 0.3);
 	new_object = (t_object *)malloc(sizeof(t_object));
 	if (!new_object)
 		return;

@@ -48,9 +48,9 @@ void	set_rgb(char	*line, t_color *colors)
 	char	**rgb;
 
 	rgb = ft_split(line, ',');
-	colors->r = ft_atoi(rgb[0]);
-	colors->g = ft_atoi(rgb[1]);
-	colors->b = ft_atoi(rgb[2]);
+	colors->r = scale(atoi_double(rgb[0]), 0, 1, 0, 255);
+	colors->g = scale(atoi_double(rgb[1]), 0, 1, 0, 255);
+	colors->b = scale(atoi_double(rgb[2]), 0, 1, 0, 255);
 	free_array(rgb);
 }
 

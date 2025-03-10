@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/08 22:00:48 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/09 23:07:18 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ typedef struct s_color
 typedef struct s_ray
 {
 	t_vector	origin;
+	t_vector	orientation;
 	t_vector	direction;
 }	t_ray;
 
@@ -145,11 +146,11 @@ typedef struct s_object
 	t_type				type;
 	t_vector			position;
 	t_color				color;
-	t_vec4				ambient;
-	t_vec4				diffuse;
-	t_vec4				shinieness;
-	t_vec4				specular;
-	t_vec4				emissive;
+	double				ambient;
+	double				diffuse;
+	double				shininess;
+	double				specular;
+	double				emissive;
 	void				*object;
 	t_object			*next;
 }	t_object;
@@ -263,3 +264,7 @@ t_hit_info		find_closest_object(t_rt *rt, t_ray *ray);
 int				sphere_intersect(t_object *object, t_ray *ray, int *t);
 int				plane_intersect(t_object *object, t_ray *ray, int *t);
 int				cylinder_intersect(t_object *object, t_ray *ray, int *t);
+
+// math
+double			scale(int number, int low, int high, int old_low, int old_high);
+int				rgb_to_int(t_color c);

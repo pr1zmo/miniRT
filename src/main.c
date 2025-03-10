@@ -121,10 +121,36 @@ void	*monitoring(void	*data)
 // 	rt->rendering = 0;
 // }
 
+void	show_objects(t_rt *rt)
+{
+	t_object *temp = rt->object;
+
+	while (temp)
+	{
+		if (temp->type == SPHERE)
+		{
+			t_sphere *sphere = (t_sphere *)temp->object;
+			printf("Sphere: %f %f %f | Color : {%f, %f, %f}\n", sphere->position.x, sphere->position.y, sphere->position.z, sphere->color.r, sphere->color.g, sphere->color.b);
+		}
+		else if (temp->type == PLANE)
+		{
+			t_plane *plane = (t_plane *)temp->object;
+			printf("Plane: %f %f %f | Color : {%f, %f, %f}\n", plane->position.x, plane->position.y, plane->position.z, plane->color.r, plane->color.g, plane->color.b);
+		}
+		else if (temp->type == CYLINDER)
+		{
+			t_cylinder *cylinder = (t_cylinder *)temp->object;
+			printf("Cylinder: %f %f %f | Color : {%f, %f, %f}\n", cylinder->position.x, cylinder->position.y, cylinder->position.z, cylinder->color.r, cylinder->color.g, cylinder->color.b);
+		}
+		temp = temp->next;
+	}
+}
+
 void	render(t_rt *rt)
 {
 	mlx_clear_window(rt->mlx, rt->win);
 	// monitoring(rt);
+	// show_objects(rt);
 	init_rays(rt);
 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
 	rt->rendering = 0;

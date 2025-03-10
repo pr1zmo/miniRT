@@ -4,24 +4,15 @@ int	intersect(t_rt *rt, int x, int y)
 {
 	t_ray		ray;
 	t_hit_info	closest_hit;
-	// int			color;
-	// int			i;
 
-	// i = 0;
-	// color = 0;
-	// while (i < BOUNCES)
-	// {
-	// 	ray = get_ray(rt, x, y, rt->camera.position, rt->camera.orientation);
-	// 	closest_hit = find_closest_object(rt, &ray);
-	// 	if (closest_hit.hit)
-	// 		color += compute_lighting(rt, &closest_hit);
-	// 	i++;
-	// }
 	ray = get_ray(rt, x, y, rt->camera.position, rt->camera.orientation);
 	closest_hit = find_closest_object(rt, &ray);
 	if (closest_hit.hit)
+	{
+		// return (rgb_to_int(closest_hit.color));
 		return (compute_lighting(rt, &closest_hit));
-	return (-1);
+	}
+	return (0);
 }
 
 t_hit_info find_closest_object(t_rt *rt, t_ray *ray)

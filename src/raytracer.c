@@ -34,28 +34,6 @@ t_ray	get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
 	return (ray);
 }
 
-// t_ray get_ray(t_rt *rt, int x, int y)
-// {
-// 	t_ray		ray;
-// 	t_vector	right, up, forward, screen_pixel;
-// 	double		px_x, px_y, fov_adjustment;
-
-// 	ray.origin = rt->camera.position;
-// 	forward = vec_norm(rt->camera.orientation);
-
-// 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
-// 	up = vec_cro(right, forward);
-
-// 	fov_adjustment = tan((rt->camera.fov * M_PI / 180.0) / 2.0);
-
-// 	px_x = (2 * ((x + 0.5) / rt->width) - 1) * ASPECT_RATIO * fov_adjustment;
-// 	px_y = (1 - 2 * ((y + 0.5) / rt->height)) * fov_adjustment;
-
-// 	screen_pixel = vec_add(vec_add(vec_scale(right, px_x), vec_scale(up, px_y)), forward);
-// 	ray.direction = vec_norm(screen_pixel);
-// 	return (ray);
-// }
-
 /*
 	Phong reflection model:
 	- Ambient light: light that is scattered in all directions
@@ -92,9 +70,14 @@ t_color	mix_color(t_color c1, float p1, t_color c2, float p2)
 	return (dst);
 }
 
-int	rgb_to_int(t_color color)
+int	rgb_to_int(t_color c)
 {
-	return ((int)(color.r) << 16 | (int)(color.g) << 8 | (int)(color.b));
+	int	color;
+
+	color = (int)(c.r * 255) << 16;
+	color += (int)(c.g * 255) << 8;
+	color += (int)(c.b * 255);
+	return (color);
 }
 
 double	vec_length(t_vector v)
@@ -144,6 +127,19 @@ t_color	normalize_color(t_color color)
 	return (normalized);
 }
 
+/*
+t_color	diffuse_light(t_rays *r, t_light *light)
+{
+	t_color	color;
+	float	dot_p;
+
+	color = r->hit.color;
+	dot_p = dot_prod(r->shadowray.dir, r->hit.nhit);
+	color = add_light(color, light->color, light->brightness * dot_p);
+	return (color);
+}
+*/
+
 int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
 {
 	t_color		final_color = {0, 0, 0};
@@ -151,21 +147,20 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
 	t_object	*obj = closest_hit->closest_object;
 	double		coef;
 	t_vector	light_dir;
-	
+
+	t_color		obj_color = normalize_color(obj->color);
 	while (light)
 	{
 		light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
 		coef = light->brightness * fmax(vec_dot(light_dir, closest_hit->normal), 0.0);
-		t_color temp_light = normalize_color(light->color);
-		final_color.r += coef * temp_light.r * 255.0;
-		final_color.g += coef * temp_light.g * 255.0;
-		final_color.b += coef * temp_light.b * 255.0;
+		final_color.r += coef * light->color.r * 255;
+		final_color.g += coef * light->color.g * 255;
+		final_color.b += coef * light->color.b * 255;
 		light = light->next;
 	}
-	t_color temp = normalize_color(obj->color);
-	final_color.r = fmin(255, final_color.r * temp.r);
-	final_color.g = fmin(255, final_color.g * temp.g);
-	final_color.b = fmin(255, final_color.b * temp.b);
+	final_color.r = fmin(1.0, final_color.r * obj_color.r);
+	final_color.g = fmin(1.0, final_color.g * obj_color.g);
+	final_color.b = fmin(1.0, final_color.b * obj_color.b);
 	// final_color = phong(rt, closest_hit, final_color);
 
 	return (rgb_to_int(final_color));
