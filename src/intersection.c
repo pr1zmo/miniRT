@@ -47,24 +47,60 @@ t_hit_info find_closest_object(t_rt *rt, t_ray *ray)
 	return (closest_hit);
 }
 
-int	cylinder_intersect(t_object *object, t_ray *ray, int *t)
+int cylinder_intersect(t_object *object, t_ray *ray, int *t)
 {
 	t_cylinder	*cylinder = (t_cylinder *)object->object;
-	t_vector	oc;
+	t_vector	p1, p2, oc, hit_point;
 	double		a, b, c, discriminant;
+	double		t_body = INFINITY, t_cap = INFINITY;
+	double		t_temp, proj;
 
-	oc = vec_sub(ray->origin, cylinder->position);
+	p1 = cylinder->position;
+	p2 = vec_add(cylinder->position, vec_scale(cylinder->direction, cylinder->height));
+
+	oc = vec_sub(ray->origin, p1);
 	a = vec_dot(ray->direction, ray->direction) - pow(vec_dot(ray->direction, cylinder->direction), 2);
-	b = 2 * (vec_dot(ray->direction, oc) - vec_dot(ray->direction, cylinder->direction) * vec_dot(oc, cylinder->direction));
+	b = 2.0 * (vec_dot(ray->direction, oc) - vec_dot(ray->direction, cylinder->direction) * vec_dot(oc, cylinder->direction));
 	c = vec_dot(oc, oc) - pow(vec_dot(oc, cylinder->direction), 2) - pow(cylinder->diameter / 2, 2);
 	discriminant = b * b - 4 * a * c;
-	if (discriminant < 0)
-		return (0);
-	*t = (-b - sqrt(discriminant)) / (2 * a);
-	if (*t < 0)
-		return (0);
-	return (1);
+	if (discriminant >= 0)
+	{
+		t_temp = (-b - sqrt(discriminant)) / (2 * a);
+		if (t_temp > 0)
+		{
+			hit_point = vec_add(ray->origin, vec_scale(ray->direction, t_temp));
+			proj = vec_dot(vec_sub(hit_point, p1), cylinder->direction);
+			if (proj >= 0 && proj <= cylinder->height)
+				t_body = t_temp;
+		}
+	}
+	double denom = vec_dot(ray->direction, cylinder->direction);
+	if (fabs(denom) > 1e-6) // avoid division by zero (ray parallel to cap planes)
+	{
+		t_temp = vec_dot(vec_sub(p1, ray->origin), cylinder->direction) / denom;
+		if (t_temp > 0)
+		{
+			hit_point = vec_add(ray->origin, vec_scale(ray->direction, t_temp));
+			if (vec_length(vec_sub(hit_point, p1)) <= cylinder->diameter / 2)
+				t_cap = fmin(t_cap, t_temp);
+		}
+		t_temp = vec_dot(vec_sub(p2, ray->origin), cylinder->direction) / denom;
+		if (t_temp > 0)
+		{
+			hit_point = vec_add(ray->origin, vec_scale(ray->direction, t_temp));
+			if (vec_length(vec_sub(hit_point, p2)) <= cylinder->diameter / 2)
+				t_cap = fmin(t_cap, t_temp);
+		}
+	}
+	double t_final = fmin(t_body, t_cap);
+	if (t_final < INFINITY && t_final > 0)
+	{
+		*t = t_final;
+		return (1);
+	}
+	return (0);
 }
+
 
 int sphere_intersect(t_object *object, t_ray *ray, int *t)
 {

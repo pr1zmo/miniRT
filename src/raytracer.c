@@ -24,7 +24,7 @@ t_ray	get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
 	up = vec_cro(right, forward);
 
-	fov_adjustment = tan((rt->camera.fov * M_PI / 180.0) / 2.0);
+	fov_adjustment = tan(rt->camera.fov * M_PI / 180.0);
 
 	px_x = (2 * ((x + .5) / rt->width) - 1) * ASPECT_RATIO * fov_adjustment;
 	px_y = (1 - 2 * ((y + .5) / rt->height)) * fov_adjustment;

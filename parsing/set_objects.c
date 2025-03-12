@@ -14,36 +14,6 @@ void	set_properties(char *line, t_sphere *sphere)
 	ft_free_split(properties);
 } */
 
-t_cylinder	transform_cylinder(t_cylinder *cylinder, double scale)
-{
-	t_cylinder	new_cylinder;
-	
-	cylinder->position = vec_scale(cylinder->position, scale);
-	cylinder->diameter *= scale;
-	cylinder->height *= scale;
-	new_cylinder = *cylinder;
-	return (new_cylinder);
-}
-
-t_sphere	transform_sphere(t_sphere *sphere, double scale)
-{
-	t_sphere	new_sphere;
-
-	sphere->position = vec_scale(sphere->position, scale);
-	sphere->diameter *= scale;
-	new_sphere = *sphere;
-	return (new_sphere);
-}
-
-t_plane	transform_plane(t_plane *plane, double scale)
-{
-	t_plane	new_plane;
-
-	plane->position = vec_scale(plane->position, scale);
-	new_plane = *plane;
-	return (new_plane);
-}
-
 void	set_cylinder(char **line, t_object **list)
 {
 	t_cylinder	*cylinder;

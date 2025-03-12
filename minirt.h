@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/09 23:07:18 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/10 22:19:53 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,8 @@ typedef struct s_cylinder
 	t_vector	direction;
 	double		diameter;
 	double		height;
+	t_vector	p1;
+	t_vector	p2;
 	t_color		color;
 }	t_cylinder;
 
@@ -268,3 +270,4 @@ int				cylinder_intersect(t_object *object, t_ray *ray, int *t);
 // math
 double			scale(int number, int low, int high, int old_low, int old_high);
 int				rgb_to_int(t_color c);
+double			vec_length(t_vector v);
