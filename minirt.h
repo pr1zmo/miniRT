@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/10 22:19:53 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/14 21:56:50 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,15 +257,15 @@ int				handle_mouse_movements(int x, int y, t_rt *rt);
 
 // scene
 
-t_ray			get_ray(t_rt *rt, int x, int y, t_vector position, t_vector orientation);
+t_ray			get_ray(t_rt *rt, int x, int y, t_ray temp_ray);
 
 // intersection
 
 void			set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t);
 t_hit_info		find_closest_object(t_rt *rt, t_ray *ray);
-int				sphere_intersect(t_object *object, t_ray *ray, int *t);
-int				plane_intersect(t_object *object, t_ray *ray, int *t);
-int				cylinder_intersect(t_object *object, t_ray *ray, int *t);
+int				sphere_intersect(t_object *object, t_ray *ray, double *t);
+int				plane_intersect(t_object *object, t_ray *ray, double *t, t_hit_info *hit);
+int				cylinder_intersect(t_object *object, t_ray *ray, double *t);
 
 // math
 double			scale(int number, int low, int high, int old_low, int old_high);

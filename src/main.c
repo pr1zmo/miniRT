@@ -250,7 +250,7 @@ int main(int ac, char **av)
 {
 	t_rt	*rt;
 
-	// global_fd = open("logs", O_CREAT | O_RDWR | O_TRUNC);
+	global_fd = open("logs", O_CREAT | O_RDWR | O_TRUNC);
 	if (ac != 2)
 	{
 		ft_putstr_fd("Error: invalid number of arguments\n", 2);

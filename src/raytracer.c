@@ -13,18 +13,20 @@ double	scale(int number, int low, int high, int old_low, int old_high)
 	return (result);
 }
 
-t_ray	get_ray(t_rt *rt, int x, int y, t_vector origin, t_vector orientation)
+t_ray	get_ray(t_rt *rt, int x, int y, t_ray temp_ray)
 {
 	t_ray		ray;
 	t_vector	right, up, forward, screen_pixel;
 	double		px_x, px_y, fov_adjustment;
+	t_vector	origin = temp_ray.origin;
+	t_vector	orientation = temp_ray.orientation;
 
 	forward = vec_norm(orientation);
 	ray.origin = origin;
 	right = vec_norm(vec_cro(forward, (t_vector){0, 1, 0}));
 	up = vec_cro(right, forward);
 
-	fov_adjustment = tan(rt->camera.fov * M_PI / 180.0);
+	fov_adjustment = tan(rt->camera.fov * M_PI / 180.0) / 2;
 
 	px_x = (2 * ((x + .5) / rt->width) - 1) * ASPECT_RATIO * fov_adjustment;
 	px_y = (1 - 2 * ((y + .5) / rt->height)) * fov_adjustment;
@@ -97,23 +99,14 @@ t_vector	scale_vector(double x, t_vector vec)
 
 t_color	phong(t_rt *rt, t_hit_info *closest_hit, t_color basic)
 {
+	(void)closest_hit;
 	t_color		phong;
 	double		ambient;
-	double		diffuse;
-	double		specular;
-	t_vector	reflection_vector;
-	double		shininess = 0.1;
-	double		specular_intensity = 1;
-	double		diffuse_intensity = 1;
 
 	ambient = rt->ambient.lighting;
-	t_vector	light_dir = vec_norm(vec_sub(rt->light->position, closest_hit->hit_point));
-	diffuse = vec_dot(light_dir, closest_hit->normal) * diffuse_intensity;
-	reflection_vector = scale_vector(2, vec_cro(light_dir, closest_hit->normal));
-	specular = pow(vec_dot(reflection_vector, closest_hit->hit_point), shininess) * specular_intensity;
-	phong.r = ambient * diffuse * specular * basic.r;
-	phong.g = ambient * diffuse * specular * basic.g;
-	phong.b = ambient * diffuse * specular * basic.b;
+	phong.r = basic.r * ambient;
+	phong.g = basic.g * ambient;
+	phong.b = basic.b * ambient;
 	return (phong);
 }
 
@@ -152,19 +145,20 @@ int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
 	while (light)
 	{
 		light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
-		coef = light->brightness * fmax(vec_dot(light_dir, closest_hit->normal), 0.0);
+		coef = light->brightness * vec_dot(light_dir, closest_hit->normal);
 		final_color.r += coef * light->color.r * 255;
 		final_color.g += coef * light->color.g * 255;
 		final_color.b += coef * light->color.b * 255;
 		light = light->next;
 	}
-	final_color.r = fmin(1.0, final_color.r * obj_color.r);
-	final_color.g = fmin(1.0, final_color.g * obj_color.g);
-	final_color.b = fmin(1.0, final_color.b * obj_color.b);
+	final_color.r = fmin(255, final_color.r * obj_color.r);
+	final_color.g = fmin(255, final_color.g * obj_color.g);
+	final_color.b = fmin(255, final_color.b * obj_color.b);
 	// final_color = phong(rt, closest_hit, final_color);
 
 	return (rgb_to_int(final_color));
 }
+
 
 void	set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t)
 {
