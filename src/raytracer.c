@@ -135,30 +135,37 @@ t_color	diffuse_light(t_rays *r, t_light *light)
 
 int compute_lighting(t_rt *rt, t_hit_info *closest_hit)
 {
-	t_color		final_color = {0, 0, 0};
-	t_light		*light = rt->light;
-	t_object	*obj = closest_hit->closest_object;
-	double		coef;
-	t_vector	light_dir;
+	t_color final_color = {0, 0, 0};
+	t_light *light = rt->light;
+	t_object *obj = closest_hit->closest_object;
 
-	t_color		obj_color = normalize_color(obj->color);
+	t_color obj_color = normalize_color(obj->color);
+
+	final_color.r = rt->ambient.color.r * rt->ambient.lighting * obj_color.r;
+	final_color.g = rt->ambient.color.g * rt->ambient.lighting * obj_color.g;
+	final_color.b = rt->ambient.color.b * rt->ambient.lighting * obj_color.b;
+
 	while (light)
 	{
-		light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
-		coef = light->brightness * vec_dot(light_dir, closest_hit->normal);
-		final_color.r += coef * light->color.r * 255;
-		final_color.g += coef * light->color.g * 255;
-		final_color.b += coef * light->color.b * 255;
+
+		t_vector light_dir = vec_norm(vec_sub(light->position, closest_hit->hit_point));
+
+		double diffuse_coef = vec_dot(light_dir, closest_hit->normal);
+		if (diffuse_coef > 0)
+		{
+			final_color.r += light->brightness * diffuse_coef * light->color.r * obj_color.r;
+			final_color.g += light->brightness * diffuse_coef * light->color.g * obj_color.g;
+			final_color.b += light->brightness * diffuse_coef * light->color.b * obj_color.b;
+		}
 		light = light->next;
 	}
-	final_color.r = fmin(255, final_color.r * obj_color.r);
-	final_color.g = fmin(255, final_color.g * obj_color.g);
-	final_color.b = fmin(255, final_color.b * obj_color.b);
-	// final_color = phong(rt, closest_hit, final_color);
+
+	final_color.r = fmin(1, final_color.r) * 255;
+	final_color.g = fmin(1, final_color.g) * 255;
+	final_color.b = fmin(1, final_color.b) * 255;
 
 	return (rgb_to_int(final_color));
 }
-
 
 void	set_hit_info(t_hit_info *closest, t_ray *ray, t_object *temp, double t)
 {
