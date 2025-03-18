@@ -14,6 +14,29 @@ void	set_properties(char *line, t_sphere *sphere)
 	ft_free_split(properties);
 } */
 
+void	set_triangle(char **line, t_object **list)
+{
+	t_triangle	*triangle;
+	t_object	*new_object;
+
+	triangle = (t_triangle *)malloc(sizeof(t_triangle));
+	if (!triangle)
+		return;
+	set_direction(line[1], &triangle->p1);
+	set_direction(line[2], &triangle->p2);
+	set_direction(line[3], &triangle->p3);
+	set_rgb(line[4], &triangle->color);
+	new_object = (t_object *)malloc(sizeof(t_object));
+	if (!new_object)
+		return;
+	new_object->type = TRIANGLE;
+	new_object->object = (void *)triangle;
+	new_object->color = triangle->color;
+	new_object->position = triangle->p1;
+	new_object->next = NULL;
+	ft_add_back(list, new_object, TRIANGLE);
+}
+
 void	set_cylinder(char **line, t_object **list)
 {
 	t_cylinder	*cylinder;

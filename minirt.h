@@ -6,7 +6,7 @@
 /*   By: zelbassa <zelbassa@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 16:42:52 by zelbassa          #+#    #+#             */
-/*   Updated: 2025/03/14 21:56:50 by zelbassa         ###   ########.fr       */
+/*   Updated: 2025/03/18 17:56:33 by zelbassa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,13 @@ typedef struct s_cylinder
 	t_color		color;
 }	t_cylinder;
 
+typedef struct s_triangle
+{
+	t_vector	p1;
+	t_vector	p2;
+	t_vector	p3;
+	t_color		color;
+}	t_triangle;
 
 typedef struct s_object
 {
@@ -187,6 +194,7 @@ typedef struct s_rt
 	int			anti_aliasing;
 	int			rendered;
 	int			rendering;
+	double		info;
 	t_ray		*ray;
 	t_ambient	ambient;
 	t_camera	camera;
@@ -194,6 +202,13 @@ typedef struct s_rt
 	t_light		*light;
 	t_object	*object;
 }	t_rt;
+
+typedef struct s_thread_data
+{
+	t_rt	*rt;
+	int		start_row;
+	int		end_row;
+}	t_thread_data;
 
 unsigned int	random_int(void);
 void			my_mlx_pixel_put(t_img *data, int x, int y, int color);
@@ -230,6 +245,8 @@ void			set_cylinder(char **line, t_object **object);
 int				parse_ambient(t_rt *rt, char *line);
 void			set_ambient(char **line, t_ambient *ambient);
 int				parse_camera(t_rt *rt, char *line);
+int				parse_triangle(t_rt *rt, char *line);
+void			set_triangle(char **line, t_object **object);
 void			set_camera(char **line, t_camera *camera);
 
 // Debugging functions
@@ -266,6 +283,7 @@ t_hit_info		find_closest_object(t_rt *rt, t_ray *ray);
 int				sphere_intersect(t_object *object, t_ray *ray, double *t);
 int				plane_intersect(t_object *object, t_ray *ray, double *t, t_hit_info *hit);
 int				cylinder_intersect(t_object *object, t_ray *ray, double *t);
+int				triangle_intersect(t_object *object, t_ray *ray, double *t);
 
 // math
 double			scale(int number, int low, int high, int old_low, int old_high);

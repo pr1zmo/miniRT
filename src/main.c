@@ -42,34 +42,21 @@ void	show_light(t_rt *rt)
 	printf("Total lights: %d\n", i);
 }
 
-void	*init_rays(void	*thread_data)
+void	*init_rays(void *thread_data)
 {
-	// char	*progress;
-	t_rt	*rt = (t_rt *)thread_data;
+	t_thread_data	*data = (t_thread_data *)thread_data;
+	t_rt			*rt = data->rt;
 
-	rt->rendering = 1;
-	// rt->ray = (t_ray *)malloc(sizeof(t_ray));
-	// if (rt->ray == NULL)
-	// {
-	// 	perror("Failed to allocate memory for ray");
-	// 	exit(EXIT_FAILURE);
-	// }
-	for (int i = 0; i < rt->height; i++)
+	for (int i = data->start_row; i < data->end_row; i++)
 	{
-		// char *temp = ft_strdup("progress: ");
-		// progress = ft_strjoin(temp, ft_itoa(i));
-		// mlx_string_put(rt->mlx, rt->win, WIDTH / 2, HEIGHT / 2, 0xffffff, progress);
-		// free(progress);
-		// free(temp);
 		for (int j = 0; j < rt->width; j++)
 		{
 			r_trace(rt, j, i);
 		}
 	}
-	// show_light(rt);
-	rt->rendering = 0;
 	return (NULL);
 }
+
 
 void ft_add_back(t_object **list, t_object *new, int type)
 {
@@ -103,23 +90,37 @@ void	*monitoring(void	*data)
 	return (NULL);
 }
 
-// void	render(t_rt *rt)
-// {
-// 	pthread_t	thread[20];
-// 	pthread_t	monitor;
+void render(t_rt *rt)
+{
+	const int		num_threads = 20;
+	pthread_t		threads[num_threads];
+	t_thread_data	thread_data[num_threads];
+	int				rows_per_thread = rt->height / num_threads;
 
-// 	mlx_clear_window(rt->mlx, rt->win);
-// 	pthread_create(&monitor, NULL, monitoring, rt);
-// 	for (int i = 0; i < 20; i++) {
-// 		pthread_create(&thread[i], NULL, init_rays, rt);
-// 	}
-// 	for (int k = 0; k < 20; k++) {
-// 		pthread_join(thread[k], NULL);
-// 	}
-// 	pthread_join(monitor, NULL);
-// 	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
-// 	rt->rendering = 0;
-// }
+	mlx_clear_window(rt->mlx, rt->win);
+	for (int i = 0; i < num_threads; i++) {
+		thread_data[i].rt = rt;
+		thread_data[i].start_row = i * rows_per_thread;
+		thread_data[i].end_row = (i == num_threads - 1) ? rt->height : (i + 1) * rows_per_thread;
+		pthread_create(&threads[i], NULL, init_rays, &thread_data[i]);
+	}
+	for (int i = 0; i < num_threads; i++) {
+		pthread_join(threads[i], NULL);
+	}
+	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
+	rt->rendering = 0;
+}
+
+/* 
+void	render(t_rt *rt)
+{
+	mlx_clear_window(rt->mlx, rt->win);
+	monitoring(rt);
+	// show_objects(rt);
+	init_rays(rt);
+	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
+	rt->rendering = 0;
+} */
 
 void	show_objects(t_rt *rt)
 {
@@ -144,16 +145,6 @@ void	show_objects(t_rt *rt)
 		}
 		temp = temp->next;
 	}
-}
-
-void	render(t_rt *rt)
-{
-	mlx_clear_window(rt->mlx, rt->win);
-	// monitoring(rt);
-	// show_objects(rt);
-	init_rays(rt);
-	mlx_put_image_to_window(rt->mlx, rt->win, rt->img.img, 0, 0);
-	rt->rendering = 0;
 }
 
 void move_sphere(t_rt *rt, int keycode)
@@ -246,6 +237,31 @@ void	init_rt(t_rt *rt)
 	rt->object_count = 0;
 }
 
+#include <sys/time.h>
+
+double	get_timediff(void)
+{
+	static struct timeval	old_t = {0};
+	struct timeval			t;
+	float					sec;
+
+	gettimeofday(&t, NULL);
+	sec = (float)(t.tv_sec - old_t.tv_sec)
+		+ ((float)(t.tv_usec - old_t.tv_usec) / 1000000);
+	old_t = t;
+	return (sec);
+}
+
+int get_current_info(int x, int y, t_rt *rt)
+{
+	(void)rt;
+	(void)x;
+	(void)y;
+    // Print mouse coordinates and any other information you need.
+	printf("Current shade of phong: %f\n", rt->info);
+    // You can also access rt and print additional info if needed.
+    return (0);
+}
 int main(int ac, char **av)
 {
 	t_rt	*rt;
@@ -263,13 +279,17 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	rt->light = NULL;
+	rt->info = 0.0;
+	get_timediff();
 	open_file(rt, av[1]);
 	init_rt(rt);
 	render(rt);
 	printf("Finished!\n");
+	printf("Time taken: %f\n", get_timediff());
 	mlx_key_hook(rt->win, key_hook, rt);
 	// mlx_mouse_hook(rt->win, handle_mouse_movements, rt);
 	mlx_hook(rt->win, 17, 0, destroy, rt);
+    // mlx_hook(rt->win, 6, (1L<<6), get_current_info, rt);
 	mlx_loop(rt->mlx);
 	return (0);
 }

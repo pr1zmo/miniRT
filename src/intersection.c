@@ -11,10 +11,7 @@ int	intersect(t_rt *rt, int x, int y)
 	ray = get_ray(rt, x, y, temp_ray);
 	closest_hit = find_closest_object(rt, &ray);
 	if (closest_hit.hit)
-	{
-		// return (rgb_to_int(closest_hit.color));
 		return (compute_lighting(rt, &closest_hit));
-	}
 	return (0);
 }
 
@@ -41,6 +38,11 @@ t_hit_info find_closest_object(t_rt *rt, t_ray *ray)
 				set_hit_info(&closest_hit, ray, temp, t);
 		}
 		else if (temp->type == CYLINDER && cylinder_intersect(temp, ray, &t))
+		{
+			if (t > 0 && t < closest_hit.dist)
+				set_hit_info(&closest_hit, ray, temp, t);
+		}
+		else if (temp->type == TRIANGLE && triangle_intersect(temp, ray, &t))
 		{
 			if (t > 0 && t < closest_hit.dist)
 				set_hit_info(&closest_hit, ray, temp, t);
