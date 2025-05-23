@@ -4,28 +4,41 @@
 #include <unistd.h>
 #include <string.h>
 
-char *get_next_line(int fd)
+static char	*append_buff(char *line, char *buff)
 {
-	char		buff[2];
-	char	*line = NULL;
-	char		*temp;
-	ssize_t		bytes_read;
+	char	*temp;
 
-	while ((bytes_read = read(fd, &buff[0], 1)) > 0)
+	if (!line)
+		return (ft_strdup(buff));
+	temp = ft_strjoin(line, buff);
+	if (!temp)
 	{
+		free(line);
+		return (NULL);
+	}
+	free(line);
+	return (temp);
+}
+
+char	*get_next_line(int fd)
+{
+	char	buff[2];
+	char	*line;
+	ssize_t	bytes_read;
+
+	line = NULL;
+	bytes_read = read(fd, buff, 1);
+	while (bytes_read > 0)
+	{
+		if (bytes_read < 0)
+			break ;
 		buff[1] = '\0';
+		line = append_buff(line, buff);
 		if (!line)
-			line = ft_strdup(buff);
-		else
-		{
-			temp = ft_strjoin(line, buff);
-			if (!temp)
-				return (free(line), NULL);
-			free(line);
-			line = temp;
-		}
+			return (NULL);
 		if (buff[0] == '\n')
-			break;
+			break ;
+		bytes_read = read(fd, buff, 1);
 	}
 	if (bytes_read < 0)
 		return (free(line), NULL);
@@ -48,9 +61,9 @@ void	set_rgb(char	*line, t_color *colors)
 	char	**rgb;
 
 	rgb = ft_split(line, ',');
-	colors->r = ft_atoi(rgb[0]);
-	colors->g = ft_atoi(rgb[1]);
-	colors->b = ft_atoi(rgb[2]);
+	colors->r = scale(atoi_double(rgb[0]), 0, 1, 0, 255);
+	colors->g = scale(atoi_double(rgb[1]), 0, 1, 0, 255);
+	colors->b = scale(atoi_double(rgb[2]), 0, 1, 0, 255);
 	free_array(rgb);
 }
 
@@ -61,10 +74,39 @@ void	set_camera(char **line, t_camera *camera)
 	set_direction(line[2], &camera->orientation);
 }
 
-void	set_light(char **line, t_light *light)
+void	ft_add_back_l(t_light **list, t_light *new)
 {
+	t_light	*temp;
+
+	if (new == NULL)
+		return ;
+	if (*list == NULL)
+	{
+		*list = new;
+		new->next = NULL;
+	}
+	else
+	{
+		temp = *list;
+		while (temp->next != NULL)
+			temp = temp->next;
+		temp->next = new;
+		new->next = NULL;
+	}
+}
+
+void	set_light(char **line, t_light **list)
+{
+	t_light	*light;
+
+	light = (t_light *)malloc(sizeof(t_light));
+	if (!light)
+		return ;
 	set_direction(line[1], &light->position);
 	light->brightness = atoi_double(line[2]);
+	set_rgb(line[3], &light->color);
+	light->next = NULL;
+	ft_add_back_l(list, light);
 }
 
 void	set_ambient(char **line, t_ambient *ambient)
@@ -165,12 +207,32 @@ int	parse_camera(t_rt *rt, char *line)
 	return (0);
 }
 
+int	parse_triangle(t_rt *rt, char *line)
+{
+	char	**line_data;
+
+	line_data = ft_split(line, ' ');
+	if (line_data[5])
+		return (free_array(line_data), arg_error("triangle"));
+	if (check_range(line_data[1], 3, NULL)
+		&& check_range(line_data[2], 3, NULL)
+		&& check_range(line_data[3], 3, NULL)
+		&& check_range(line_data[4], 3, (int[]){0, 255}))
+	{
+		set_triangle(line_data, &rt->object);
+		free_array(line_data);
+		return (1);
+	}
+	free_array(line_data);
+	return (0);
+}
+
 int	parse_light(t_rt *rt, char *line)
 {
 	char	**line_data;
 
 	line_data = ft_split(line, ' ');
-	if (line_data[3])
+	if (line_data[4])
 		return (free_array(line_data), arg_error("light"));
 	if (check_range(line_data[1], 3, NULL)
 		&& check_range(line_data[2], 2, (int[]){0, 1}))
@@ -183,10 +245,10 @@ int	parse_light(t_rt *rt, char *line)
 	return (0);
 }
 
-void	parsing_error(char *message)
+void	parsing_error(char *msg)
 {
 	ft_putstr_fd("Error: ", 2);
-	ft_putendl_fd(message, 2);
+	ft_putendl_fd(msg, 2);
 }
 
 int	valid_line(char *arg)
@@ -195,38 +257,68 @@ int	valid_line(char *arg)
 		return (0);
 	if (!ft_strncmp(arg, "A", 0) || !ft_strncmp(arg, "C", 0)
 		|| !ft_strncmp(arg, "L", 0) || !ft_strncmp(arg, "sp", 0)
-		|| !ft_strncmp(arg, "pl", 0) || !ft_strncmp(arg, "cy", 0))
+		|| !ft_strncmp(arg, "pl", 0) || !ft_strncmp(arg, "cy", 0)
+		|| !ft_strncmp(arg, "#", 1) || !ft_strncmp(arg, "tr", 0))
 		return (1);
 	return (0);
+}
+
+int	parse_obj(t_rt *rt, char *first_arg, char *line)
+{
+	if (!ft_strncmp(first_arg, "sp", ft_strlen("sp"))
+		&& !parse_sphere(rt, line))
+		return (0);
+	if (!ft_strncmp(first_arg, "pl", ft_strlen("pl"))
+		&& !parse_plane(rt, line))
+		return (0);
+	if (!ft_strncmp(first_arg, "cy", ft_strlen("cy"))
+		&& !parse_cylinder(rt, line))
+		return (0);
+	if (!ft_strncmp(first_arg, "tr", ft_strlen("tr"))
+		&& !parse_triangle(rt, line))
+		return (0);
+	return (1);
+}
+
+static int	process_line(t_rt *rt, char *line)
+{
+	char	*first_arg;
+	char	*sp;
+
+	if (line[0] == '\n' || line[0] == '\0')
+	{
+		free(line);
+		return (0);
+	}
+	sp = ft_strchr(line, ' ');
+	if (sp)
+		first_arg = ft_substr(line, 0, sp - line);
+	else
+		first_arg = ft_strdup(line);
+	if (!first_arg || !valid_line(first_arg))
+		return (free(line), free(first_arg), parsing_error("INVALID LINE"), 1);
+	if (!ft_strncmp(first_arg, "A", ft_strlen("A")) && !parse_ambient(rt, line))
+		return (free(line), free(first_arg), parsing_error("AMBIENT"), 1);
+	if (!ft_strncmp(first_arg, "C", ft_strlen("C")) && !parse_camera(rt, line))
+		return (free(line), free(first_arg), parsing_error("CAMERA"), 1);
+	if (!ft_strncmp(first_arg, "L", ft_strlen("L")) && !parse_light(rt, line))
+		return (free(line), free(first_arg), parsing_error("LIGHT"), 1);
+	if (!parse_obj(rt, first_arg, line))
+		return (free(line), free(first_arg), parsing_error("OBJECT"), 1);
+	return (free(first_arg), free(line), 0);
 }
 
 int	parse(t_rt *rt)
 {
 	char	*line;
-	char	*first_arg;
 
 	rt->object = NULL;
-	while (1) {
+	line = get_next_line(rt->file_fd);
+	while (line != NULL)
+	{
+		if (process_line(rt, line))
+			return (1);
 		line = get_next_line(rt->file_fd);
-		if (!line)
-			break;
-		first_arg = ft_substr(line, 0, ft_strchr(line, ' ') - line);
-		if (!valid_line(first_arg))
-			return (free(line), free(first_arg), parsing_error("INVALID LINE"), 1);
-		if (!ft_strncmp(first_arg, "A", 0) && !parse_ambient(rt, line))
-			return (free(line), free(first_arg), parsing_error("AMBIENT"), 1);
-		if (!ft_strncmp(first_arg, "C", 0) && !parse_camera(rt, line))
-			return (free(line), free(first_arg), parsing_error("CAMERA"), 1);
-		if (!ft_strncmp(first_arg, "L", 0) && !parse_light(rt, line))
-			return (free(line), free(first_arg), parsing_error("LIGHT"), 1);
-		if (!ft_strncmp(first_arg, "sp", 0) && !parse_sphere(rt, line))
-			return (free(line), free(first_arg), parsing_error("SPHERE"), 1);
-		if (!ft_strncmp(first_arg, "pl", 0) && !parse_plane(rt, line))
-			return (free(line), free(first_arg), parsing_error("PLANE"), 1);
-		if (!ft_strncmp(first_arg, "cy", 0) && !parse_cylinder(rt, line))
-			return (free(line), free(first_arg), parsing_error("CYLINDER"), 1);
-		free(line);
-		free(first_arg);
 	}
 	return (0);
 }

@@ -1,0 +1,20 @@
+# Ambient Light
+A                         0.5            255,255,255
+
+# Camera (position, orientation, FOV)
+C   0.0,5.0,10.0          0.0,0.0,0.0          60
+
+# Lights (position, intensity, color)
+L   5.0,8.0,5.0           1            255,255,255
+L   -5.0,7.0,5.0          1            200,220,255
+
+# Floor Plane (position, normal, color)
+pl  0.0,0.0,0.0          0.0,1.0,0.0           100,100,100
+
+# Tetrahedron (4 triangular faces)
+# Base Triangle
+tr  -5.0,0.0,-5.0   1.0,0.0,-1.0   0.0,0.0,1.0    200,200,255
+# Side Triangles
+tr  -5.0,0.0,-5.0   0.0,2.0,0.0    1.0,0.0,-1.0   200,200,255
+tr  5.0,0.0,-5.0    0.0,2.0,0.0    0.0,0.0,1.0    200,200,255
+tr  0.0,0.0,5.0     0.0,2.0,0.0    -1.0,0.0,-1.0  200,200,255
